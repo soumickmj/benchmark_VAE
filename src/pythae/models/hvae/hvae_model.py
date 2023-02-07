@@ -50,11 +50,11 @@ class HVAE(VAE):
         self.n_lf = model_config.n_lf
         self.eps_lf = nn.Parameter(
             torch.tensor([model_config.eps_lf]),
-            requires_grad=True if model_config.learn_eps_lf else False,
+            requires_grad=bool(model_config.learn_eps_lf),
         )
         self.beta_zero_sqrt = nn.Parameter(
             torch.tensor([model_config.beta_zero]) ** 0.5,
-            requires_grad=True if model_config.learn_beta_zero else False,
+            requires_grad=bool(model_config.learn_beta_zero),
         )
 
         if model_config.reconstruction_loss == "bce":
@@ -113,7 +113,7 @@ class HVAE(VAE):
 
         loss = self.loss_function(x, z, rho, z0, mu, log_var)
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             recon_x=recon_x,
             z=z,
@@ -124,8 +124,6 @@ class HVAE(VAE):
             mu=mu,
             log_var=log_var,
         )
-
-        return output
 
     def _dU_dz(self, z, x):
         net_out = self.decoder(z)["reconstruction"].reshape(x.shape[0], -1)
@@ -210,8 +208,7 @@ class HVAE(VAE):
 
             log_p_x = []
 
-            for j in range(n_full_batch):
-
+            for _ in range(n_full_batch):
                 x_rep = torch.cat(batch_size * [x]).reshape(-1, 1, 28, 28)
 
                 encoder_output = self.encoder(x_rep)

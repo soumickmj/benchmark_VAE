@@ -87,9 +87,7 @@ class DataProcessor:
             labels = torch.ones(data.shape[0])
 
         labels = DataProcessor.to_tensor(labels)
-        dataset = BaseDataset(data, labels)
-
-        return dataset
+        return BaseDataset(data, labels)
 
     def _process_data_array(self, data: np.ndarray, batch_size: int = 100):
 
@@ -145,16 +143,15 @@ class DataProcessor:
                     f" Check data"
                 )
 
-            else:
-                try:
-                    data = torch.tensor(data).type(torch.float)
+            try:
+                data = torch.tensor(data).type(torch.float)
 
-                except (TypeError, RuntimeError) as e:
-                    raise TypeError(
-                        str(e.args) + ". Potential issues:\n"
-                        "- input data has not the same shape in array\n"
-                        "- input data with unhandable type"
-                    ) from e
+            except (TypeError, RuntimeError) as e:
+                raise TypeError(
+                    str(e.args) + ". Potential issues:\n"
+                    "- input data has not the same shape in array\n"
+                    "- input data with unhandable type"
+                ) from e
 
         return data
 
@@ -169,7 +166,4 @@ class DataProcessor:
             (bool): True if data contains :obj:`nan`
         """
 
-        if (data != data).sum() > 0:
-            return True
-        else:
-            return False
+        return (data != data).sum() > 0

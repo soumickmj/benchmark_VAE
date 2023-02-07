@@ -77,29 +77,29 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
         )
 
         if self.training_config.encoder_optimizer_params is not None:
-            if self.distributed:
-                encoder_optimizer = encoder_optimizer_cls(
+            encoder_optimizer = (
+                encoder_optimizer_cls(
                     self.model.module.encoder.parameters(),
                     lr=self.training_config.encoder_learning_rate,
                     **self.training_config.encoder_optimizer_params,
                 )
-            else:
-                encoder_optimizer = encoder_optimizer_cls(
+                if self.distributed
+                else encoder_optimizer_cls(
                     self.model.encoder.parameters(),
                     lr=self.training_config.encoder_learning_rate,
                     **self.training_config.encoder_optimizer_params,
                 )
+            )
+        elif self.distributed:
+            encoder_optimizer = encoder_optimizer_cls(
+                self.model.module.encoder.parameters(),
+                lr=self.training_config.encoder_learning_rate,
+            )
         else:
-            if self.distributed:
-                encoder_optimizer = encoder_optimizer_cls(
-                    self.model.module.encoder.parameters(),
-                    lr=self.training_config.encoder_learning_rate,
-                )
-            else:
-                encoder_optimizer = encoder_optimizer_cls(
-                    self.model.encoder.parameters(),
-                    lr=self.training_config.encoder_learning_rate,
-                )
+            encoder_optimizer = encoder_optimizer_cls(
+                self.model.encoder.parameters(),
+                lr=self.training_config.encoder_learning_rate,
+            )
 
         self.encoder_optimizer = encoder_optimizer
 
@@ -128,29 +128,29 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
         )
 
         if self.training_config.decoder_optimizer_params is not None:
-            if self.distributed:
-                decoder_optimizer = decoder_optimizer_cls(
+            decoder_optimizer = (
+                decoder_optimizer_cls(
                     self.model.module.decoder.parameters(),
                     lr=self.training_config.decoder_learning_rate,
                     **self.training_config.decoder_optimizer_params,
                 )
-            else:
-                decoder_optimizer = decoder_optimizer_cls(
+                if self.distributed
+                else decoder_optimizer_cls(
                     self.model.decoder.parameters(),
                     lr=self.training_config.decoder_learning_rate,
                     **self.training_config.decoder_optimizer_params,
                 )
+            )
+        elif self.distributed:
+            decoder_optimizer = decoder_optimizer_cls(
+                self.model.module.decoder.parameters(),
+                lr=self.training_config.decoder_learning_rate,
+            )
         else:
-            if self.distributed:
-                decoder_optimizer = decoder_optimizer_cls(
-                    self.model.module.decoder.parameters(),
-                    lr=self.training_config.decoder_learning_rate,
-                )
-            else:
-                decoder_optimizer = decoder_optimizer_cls(
-                    self.model.decoder.parameters(),
-                    lr=self.training_config.decoder_learning_rate,
-                )
+            decoder_optimizer = decoder_optimizer_cls(
+                self.model.decoder.parameters(),
+                lr=self.training_config.decoder_learning_rate,
+            )
 
         self.decoder_optimizer = decoder_optimizer
 
@@ -179,30 +179,29 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
         )
 
         if self.training_config.discriminator_optimizer_params is not None:
-            if self.distributed:
-                discriminator_optimizer = discriminator_cls(
+            discriminator_optimizer = (
+                discriminator_cls(
                     self.model.module.discriminator.parameters(),
                     lr=self.training_config.discriminator_learning_rate,
                     **self.training_config.discriminator_optimizer_params,
                 )
-            else:
-                discriminator_optimizer = discriminator_cls(
+                if self.distributed
+                else discriminator_cls(
                     self.model.discriminator.parameters(),
                     lr=self.training_config.discriminator_learning_rate,
                     **self.training_config.discriminator_optimizer_params,
                 )
-
+            )
+        elif self.distributed:
+            discriminator_optimizer = discriminator_cls(
+                self.model.module.discriminator.parameters(),
+                lr=self.training_config.discriminator_learning_rate,
+            )
         else:
-            if self.distributed:
-                discriminator_optimizer = discriminator_cls(
-                    self.model.module.discriminator.parameters(),
-                    lr=self.training_config.discriminator_learning_rate,
-                )
-            else:
-                discriminator_optimizer = discriminator_cls(
-                    self.model.discriminator.parameters(),
-                    lr=self.training_config.discriminator_learning_rate,
-                )
+            discriminator_optimizer = discriminator_cls(
+                self.model.discriminator.parameters(),
+                lr=self.training_config.discriminator_learning_rate,
+            )
 
         self.discriminator_optimizer = discriminator_optimizer
 
@@ -227,13 +226,13 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
 
     def _optimizers_step(self, model_output):
 
-        encoder_loss = model_output.encoder_loss
         decoder_loss = model_output.decoder_loss
         discriminator_loss = model_output.discriminator_loss
 
         # Reset optimizers
         if model_output.update_encoder:
             self.encoder_optimizer.zero_grad()
+            encoder_loss = model_output.encoder_loss
             encoder_loss.backward(retain_graph=True)
 
         if model_output.update_decoder:
@@ -363,8 +362,6 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
                 eval_loader=self.eval_loader,
             )
 
-            metrics = {}
-
             train_losses = self.train_step(epoch)
 
             [
@@ -373,11 +370,12 @@ class CoupledOptimizerAdversarialTrainer(BaseTrainer):
                 epoch_train_decoder_loss,
                 epoch_train_discriminator_loss,
             ] = train_losses
-            metrics["train_epoch_loss"] = epoch_train_loss
-            metrics["train_encoder_loss"] = epoch_train_encoder_loss
-            metrics["train_decoder_loss"] = epoch_train_decoder_loss
-            metrics["train_discriminator_loss"] = epoch_train_discriminator_loss
-
+            metrics = {
+                "train_epoch_loss": epoch_train_loss,
+                "train_encoder_loss": epoch_train_encoder_loss,
+                "train_decoder_loss": epoch_train_decoder_loss,
+                "train_discriminator_loss": epoch_train_discriminator_loss,
+            }
             if self.eval_dataset is not None:
                 eval_losses = self.eval_step(epoch)
 

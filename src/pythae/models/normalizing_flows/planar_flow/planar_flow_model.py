@@ -55,6 +55,4 @@ class PlanarFlow(BaseNF):
         phi = self.activation_derivative(lin) @ self.w  # [B x input_dim]
         log_det = torch.log(torch.abs(1 + phi @ self.u.T) + 1e-4).squeeze()  # [B]
 
-        output = ModelOutput(out=f, log_abs_det_jac=log_det)
-
-        return output
+        return ModelOutput(out=f, log_abs_det_jac=log_det)

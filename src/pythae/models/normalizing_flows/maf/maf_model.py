@@ -36,7 +36,7 @@ class MAF(BaseNF):
             degrees_ordering="sequential",
         )
 
-        for i in range(model_config.n_made_blocks):
+        for _ in range(model_config.n_made_blocks):
             self.net.extend([MADE(made_config)])
             if self.model_config.include_batch_norm:
                 self.net.extend([BatchNorm(self.input_dim)])

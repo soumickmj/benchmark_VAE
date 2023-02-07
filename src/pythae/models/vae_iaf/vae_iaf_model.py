@@ -92,15 +92,13 @@ class VAE_IAF(VAE):
             recon_x, x, mu, log_var, z0, z, log_abs_det_jac
         )
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, mu, log_var, z0, zk, log_abs_det_jac):
 
@@ -167,8 +165,7 @@ class VAE_IAF(VAE):
 
             log_p_x = []
 
-            for j in range(n_full_batch):
-
+            for _ in range(n_full_batch):
                 x_rep = torch.cat(batch_size * [x])
 
                 encoder_output = self.encoder(x_rep)

@@ -40,11 +40,10 @@ class ModelOutput(OrderedDict):
     the ``ModelOutput`` class from hugginface transformers library"""
 
     def __getitem__(self, k):
-        if isinstance(k, str):
-            self_dict = {k: v for (k, v) in self.items()}
-            return self_dict[k]
-        else:
+        if not isinstance(k, str):
             return self.to_tuple()[k]
+        self_dict = dict(self.items())
+        return self_dict[k]
 
     def __setattr__(self, name, value):
         super().__setitem__(name, value)

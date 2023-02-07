@@ -41,11 +41,10 @@ class MaskedConv2d(nn.Conv2d):
 
         if mask_type == "A":
             self.mask[:, :, kH // 2, kW // 2 :] = 0
-            self.mask[:, :, kH // 2 + 1 :] = 0
-
         else:
             self.mask[:, :, kH // 2, kW // 2 + 1 :] = 0
-            self.mask[:, :, kH // 2 + 1 :] = 0
+
+        self.mask[:, :, kH // 2 + 1 :] = 0
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         # self.weight.data *= self.mask

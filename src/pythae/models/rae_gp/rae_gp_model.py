@@ -63,7 +63,7 @@ class RAE_GP(AE):
             recon_x, x, z
         )
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             recon_loss=recon_loss,
             gen_reg_loss=gen_reg_loss,
@@ -71,8 +71,6 @@ class RAE_GP(AE):
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z):
 

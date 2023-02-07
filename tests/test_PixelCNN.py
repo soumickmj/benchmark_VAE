@@ -70,9 +70,11 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "environment.json",
+        }
 
         # reload model
         model_rec = AutoModel.load_from_folder(dir_path)
@@ -81,10 +83,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_raises_missing_files(self, tmpdir, model_configs):
@@ -122,10 +122,9 @@ class Test_Model_Saving:
 class Test_Model_forward:
     @pytest.fixture
     def demo_data(self):
-        data = torch.load(os.path.join(PATH, "data/mnist_clean_train_dataset_sample"))[
-            :
-        ]
-        return data  # This is an extract of 3 data from MNIST (unnormalized) used to test custom architecture
+        return torch.load(
+            os.path.join(PATH, "data/mnist_clean_train_dataset_sample")
+        )[:]
 
     @pytest.fixture
     def pixelcnn(self, model_configs, demo_data):
@@ -139,7 +138,7 @@ class Test_Model_forward:
 
         assert isinstance(out, ModelOutput)
 
-        assert set(["out", "loss"]) == set(out.keys())
+        assert {"out", "loss"} == set(out.keys())
 
         assert (
             out.out.shape
@@ -177,8 +176,7 @@ class Test_PixelCNN_Training:
 
     @pytest.fixture
     def pixelcnn(self, model_configs):
-        model = PixelCNN(model_configs)
-        return model
+        return PixelCNN(model_configs)
 
     @pytest.fixture
     def trainer(self, pixelcnn, train_dataset, training_configs):
@@ -203,10 +201,8 @@ class Test_PixelCNN_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_pixelcnn_eval_step(self, trainer):
@@ -226,10 +222,8 @@ class Test_PixelCNN_Training:
                 print(key, pixelcnn)
 
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_pixelcnn_main_train_loop(self, trainer):
@@ -242,10 +236,8 @@ class Test_PixelCNN_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_checkpoint_saving(self, trainer, training_configs):
@@ -266,7 +258,7 @@ class Test_PixelCNN_Training:
 
         files_list = os.listdir(checkpoint_dir)
 
-        assert set(["model.pt", "optimizer.pt", "training_config.json"]).issubset(
+        assert {"model.pt", "optimizer.pt", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -275,45 +267,37 @@ class Test_PixelCNN_Training:
         ]
 
         assert all(
-            [
-                torch.equal(
-                    model_rec_state_dict[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec_state_dict[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         # check reload full model
         model_rec = AutoModel.load_from_folder(os.path.join(checkpoint_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         optim_rec_state_dict = torch.load(os.path.join(checkpoint_dir, "optimizer.pt"))
 
         assert all(
-            [
-                dict_rec == dict_optimizer
-                for (dict_rec, dict_optimizer) in zip(
-                    optim_rec_state_dict["param_groups"],
-                    optimizer.state_dict()["param_groups"],
-                )
-            ]
+            dict_rec == dict_optimizer
+            for (dict_rec, dict_optimizer) in zip(
+                optim_rec_state_dict["param_groups"],
+                optimizer.state_dict()["param_groups"],
+            )
         )
 
         assert all(
-            [
-                dict_rec == dict_optimizer
-                for (dict_rec, dict_optimizer) in zip(
-                    optim_rec_state_dict["state"], optimizer.state_dict()["state"]
-                )
-            ]
+            dict_rec == dict_optimizer
+            for (dict_rec, dict_optimizer) in zip(
+                optim_rec_state_dict["state"], optimizer.state_dict()["state"]
+            )
         )
 
     def test_checkpoint_saving_during_training(self, trainer, training_configs):
@@ -340,7 +324,7 @@ class Test_PixelCNN_Training:
         files_list = os.listdir(checkpoint_dir)
 
         # check files
-        assert set(["model.pt", "optimizer.pt", "training_config.json"]).issubset(
+        assert {"model.pt", "optimizer.pt", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -349,10 +333,8 @@ class Test_PixelCNN_Training:
         ]
 
         assert not all(
-            [
-                torch.equal(model_rec_state_dict[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec_state_dict[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_final_model_saving(self, trainer, training_configs):
@@ -368,12 +350,12 @@ class Test_PixelCNN_Training:
         )
         assert os.path.isdir(training_dir)
 
-        final_dir = os.path.join(training_dir, f"final_model")
+        final_dir = os.path.join(training_dir, "final_model")
         assert os.path.isdir(final_dir)
 
         files_list = os.listdir(final_dir)
 
-        assert set(["model.pt", "model_config.json", "training_config.json"]).issubset(
+        assert {"model.pt", "model_config.json", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -381,12 +363,10 @@ class Test_PixelCNN_Training:
         model_rec = AutoModel.load_from_folder(os.path.join(final_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
     def test_pixelcnn_training_pipeline(
@@ -413,12 +393,12 @@ class Test_PixelCNN_Training:
         )
         assert os.path.isdir(training_dir)
 
-        final_dir = os.path.join(training_dir, f"final_model")
+        final_dir = os.path.join(training_dir, "final_model")
         assert os.path.isdir(final_dir)
 
         files_list = os.listdir(final_dir)
 
-        assert set(["model.pt", "model_config.json", "training_config.json"]).issubset(
+        assert {"model.pt", "model_config.json", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -426,10 +406,8 @@ class Test_PixelCNN_Training:
         model_rec = AutoModel.load_from_folder(os.path.join(final_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )

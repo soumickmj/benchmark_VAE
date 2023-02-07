@@ -85,9 +85,11 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "environment.json",
+        }
 
         # reload model
         model_rec = BaseAE.load_from_folder(dir_path)
@@ -96,10 +98,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_custom_decoder_model_saving(
@@ -113,9 +113,12 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "decoder.pkl", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "decoder.pkl",
+            "environment.json",
+        }
 
         # reload model
         model_rec = BaseAE.load_from_folder(dir_path)
@@ -124,10 +127,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_raises_missing_files(

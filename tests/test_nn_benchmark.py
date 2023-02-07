@@ -98,21 +98,16 @@ class Test_MNIST_Default:
 
         if recon_layers_default is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers_default:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 512
+                assert encoder_embed["embedding_layer_1"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 512
 
             if -1 in recon_layers_default:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_vae_encoding_decoding_default(
         self, ae_mnist_config, mnist_like_data, recon_layers_default
@@ -162,14 +157,12 @@ class Test_MNIST_Default:
             assert (
                 encoder_embed["log_covariance"].shape[1] == ae_mnist_config.latent_dim
             )
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers_default:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 512
+                assert encoder_embed["embedding_layer_1"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 512
 
             if -1 in recon_layers_default:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
@@ -177,10 +170,7 @@ class Test_MNIST_Default:
                     encoder_embed["log_covariance"].shape[1]
                     == ae_mnist_config.latent_dim
                 )
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_svae_encoding_decoding_default(
         self, ae_mnist_config, mnist_like_data, recon_layers_default
@@ -225,22 +215,17 @@ class Test_MNIST_Default:
         if recon_layers_default is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
             assert encoder_embed["log_concentration"].shape[1] == 1
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers_default:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 512
+                assert encoder_embed["embedding_layer_1"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 512
 
             if -1 in recon_layers_default:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
                 assert encoder_embed["log_concentration"].shape[1] == 1
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_discriminator_default(
         self, ae_mnist_config, mnist_like_data, recon_layers_default
@@ -269,10 +254,10 @@ class Test_MNIST_Default:
 
         else:
             if 1 in recon_layers_default:
-                assert scores[f"embedding_layer_1"].shape[1] == 256
+                assert scores["embedding_layer_1"].shape[1] == 256
 
             if 2 in recon_layers_default:
-                assert scores[f"embedding_layer_2"].shape[1] == 1
+                assert scores["embedding_layer_2"].shape[1] == 1
 
             if -1 in recon_layers_default:
                 assert scores["embedding"].shape[1] == 1
@@ -314,36 +299,31 @@ class Test_MNIST_ConvNets:
 
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_vae_encoding_decoding(
         self, ae_mnist_config, mnist_like_data, recon_layers
@@ -391,27 +371,25 @@ class Test_MNIST_ConvNets:
             assert (
                 encoder_embed["log_covariance"].shape[1] == ae_mnist_config.latent_dim
             )
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
@@ -421,10 +399,7 @@ class Test_MNIST_ConvNets:
                     encoder_embed["log_covariance"].shape[1]
                     == ae_mnist_config.latent_dim
                 )
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_svae_encoding_decoding(
         self, ae_mnist_config, mnist_like_data, recon_layers
@@ -467,37 +442,32 @@ class Test_MNIST_ConvNets:
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
             assert encoder_embed["log_concentration"].shape[1] == 1
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
                 assert encoder_embed["log_concentration"].shape[1] == 1
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_discriminator(self, ae_mnist_config, mnist_like_data, recon_layers):
 
@@ -523,16 +493,16 @@ class Test_MNIST_ConvNets:
 
         else:
             if 1 in recon_layers:
-                assert scores[f"embedding_layer_1"].shape[1] == 128
+                assert scores["embedding_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert scores[f"embedding_layer_2"].shape[1] == 256
+                assert scores["embedding_layer_2"].shape[1] == 256
 
             if 3 in recon_layers:
-                assert scores[f"embedding_layer_3"].shape[1] == 512
+                assert scores["embedding_layer_3"].shape[1] == 512
 
             if 4 in recon_layers:
-                assert scores[f"embedding_layer_4"].shape[1] == 1024
+                assert scores["embedding_layer_4"].shape[1] == 1024
 
             if -1 in recon_layers:
                 assert scores["embedding"].shape[1] == 1
@@ -574,39 +544,34 @@ class Test_MNIST_ResNets:
 
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 128
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 128
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_4"].shape[1] == 64
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_4"].shape[1] == 64
 
             if 5 in recon_layers:
                 assert (
-                    decoder_recon[f"reconstruction_layer_5"].shape[1:]
+                    decoder_recon["reconstruction_layer_5"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_vae_encoding_decoding(
         self, ae_mnist_config, mnist_like_data, recon_layers
@@ -646,30 +611,28 @@ class Test_MNIST_ResNets:
             assert (
                 encoder_embed["log_covariance"].shape[1] == ae_mnist_config.latent_dim
             )
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 128
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 128
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_4"].shape[1] == 64
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_4"].shape[1] == 64
 
             if 5 in recon_layers:
                 assert (
-                    decoder_recon[f"reconstruction_layer_5"].shape[1:]
+                    decoder_recon["reconstruction_layer_5"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
@@ -679,10 +642,7 @@ class Test_MNIST_ResNets:
                     encoder_embed["log_covariance"].shape[1]
                     == ae_mnist_config.latent_dim
                 )
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_svae_encoding_decoding(
         self, ae_mnist_config, mnist_like_data, recon_layers
@@ -720,40 +680,35 @@ class Test_MNIST_ResNets:
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
             assert encoder_embed["log_concentration"].shape[1] == 1
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 128
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 128
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_4"].shape[1] == 64
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_4"].shape[1] == 64
 
             if 5 in recon_layers:
                 assert (
-                    decoder_recon[f"reconstruction_layer_5"].shape[1:]
+                    decoder_recon["reconstruction_layer_5"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
                 assert encoder_embed["log_concentration"].shape[1] == 1
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
     def test_vqvae_encoding_decoding(
         self, ae_mnist_config, mnist_like_data, recon_layers
@@ -791,39 +746,34 @@ class Test_MNIST_ResNets:
 
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_mnist_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 128
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 128
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_4"].shape[1] == 64
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_4"].shape[1] == 64
 
             if 5 in recon_layers:
                 assert (
-                    decoder_recon[f"reconstruction_layer_5"].shape[1:]
+                    decoder_recon["reconstruction_layer_5"].shape[1:]
                     == ae_mnist_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_mnist_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_mnist_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_mnist_config.input_dim
 
 
 class Test_CIFAR_ConvNets:
@@ -862,36 +812,31 @@ class Test_CIFAR_ConvNets:
 
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_cifar_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_cifar_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_cifar_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
     def test_vae_encoding_decoding(
         self, ae_cifar_config, cifar_like_data, recon_layers
@@ -939,27 +884,25 @@ class Test_CIFAR_ConvNets:
             assert (
                 encoder_embed["log_covariance"].shape[1] == ae_cifar_config.latent_dim
             )
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_cifar_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_cifar_config.input_dim
                 )
 
@@ -969,10 +912,7 @@ class Test_CIFAR_ConvNets:
                     encoder_embed["log_covariance"].shape[1]
                     == ae_cifar_config.latent_dim
                 )
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_cifar_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
     def test_svae_encoding_decoding(
         self, ae_cifar_config, cifar_like_data, recon_layers
@@ -1018,37 +958,32 @@ class Test_CIFAR_ConvNets:
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
             assert encoder_embed["log_concentration"].shape[1] == 1
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_cifar_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_1"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 1024
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 256
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 512
+                assert encoder_embed["embedding_layer_2"].shape[1] == 256
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 512
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 512
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 256
+                assert encoder_embed["embedding_layer_3"].shape[1] == 512
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 256
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 1024
+                assert encoder_embed["embedding_layer_4"].shape[1] == 1024
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_cifar_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
                 assert encoder_embed["log_concentration"].shape[1] == 1
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_cifar_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
     def test_discriminator(self, ae_cifar_config, cifar_like_data, recon_layers):
 
@@ -1074,16 +1009,16 @@ class Test_CIFAR_ConvNets:
 
         else:
             if 1 in recon_layers:
-                assert scores[f"embedding_layer_1"].shape[1] == 128
+                assert scores["embedding_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert scores[f"embedding_layer_2"].shape[1] == 256
+                assert scores["embedding_layer_2"].shape[1] == 256
 
             if 3 in recon_layers:
-                assert scores[f"embedding_layer_3"].shape[1] == 512
+                assert scores["embedding_layer_3"].shape[1] == 512
 
             if 4 in recon_layers:
-                assert scores[f"embedding_layer_4"].shape[1] == 1024
+                assert scores["embedding_layer_4"].shape[1] == 1024
 
             if -1 in recon_layers:
                 assert scores["embedding"].shape[1] == 1
@@ -1125,36 +1060,31 @@ class Test_CIFAR_ResNets:
 
         if recon_layers is None:
             assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_cifar_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 64
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 64
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_cifar_config.input_dim
                 )
 
             if -1 in recon_layers:
                 assert encoder_embed["embedding"].shape[1] == ae_cifar_config.latent_dim
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_cifar_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
     def test_vae_encoding_decoding(
         self, ae_cifar_config, cifar_like_data, recon_layers
@@ -1194,27 +1124,25 @@ class Test_CIFAR_ResNets:
             assert (
                 encoder_embed["log_covariance"].shape[1] == ae_cifar_config.latent_dim
             )
-            assert (
-                decoder_recon[f"reconstruction"].shape[1:] == ae_cifar_config.input_dim
-            )
+            assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
         else:
             if 1 in recon_layers:
-                assert encoder_embed[f"embedding_layer_1"].shape[1] == 64
-                assert decoder_recon[f"reconstruction_layer_1"].shape[1] == 128
+                assert encoder_embed["embedding_layer_1"].shape[1] == 64
+                assert decoder_recon["reconstruction_layer_1"].shape[1] == 128
 
             if 2 in recon_layers:
-                assert encoder_embed[f"embedding_layer_2"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_2"].shape[1] == 128
+                assert encoder_embed["embedding_layer_2"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_2"].shape[1] == 128
 
             if 3 in recon_layers:
-                assert encoder_embed[f"embedding_layer_3"].shape[1] == 128
-                assert decoder_recon[f"reconstruction_layer_3"].shape[1] == 64
+                assert encoder_embed["embedding_layer_3"].shape[1] == 128
+                assert decoder_recon["reconstruction_layer_3"].shape[1] == 64
 
             if 4 in recon_layers:
-                assert encoder_embed[f"embedding_layer_4"].shape[1] == 128
+                assert encoder_embed["embedding_layer_4"].shape[1] == 128
                 assert (
-                    decoder_recon[f"reconstruction_layer_4"].shape[1:]
+                    decoder_recon["reconstruction_layer_4"].shape[1:]
                     == ae_cifar_config.input_dim
                 )
 
@@ -1224,10 +1152,7 @@ class Test_CIFAR_ResNets:
                     encoder_embed["log_covariance"].shape[1]
                     == ae_cifar_config.latent_dim
                 )
-                assert (
-                    decoder_recon[f"reconstruction"].shape[1:]
-                    == ae_cifar_config.input_dim
-                )
+                assert decoder_recon["reconstruction"].shape[1:] == ae_cifar_config.input_dim
 
     def test_svae_encoding_decoding(
         self, ae_cifar_config, cifar_like_data, recon_layers

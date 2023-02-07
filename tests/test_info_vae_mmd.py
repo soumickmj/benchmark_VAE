@@ -128,9 +128,11 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "environment.json",
+        }
 
         # reload model
         model_rec = INFOVAE_MMD.load_from_folder(dir_path)
@@ -139,10 +141,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_custom_encoder_model_saving(self, tmpdir, model_configs, custom_encoder):
@@ -156,9 +156,12 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "encoder.pkl", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "encoder.pkl",
+            "environment.json",
+        }
 
         # reload model
         model_rec = INFOVAE_MMD.load_from_folder(dir_path)
@@ -167,10 +170,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_custom_decoder_model_saving(self, tmpdir, model_configs, custom_decoder):
@@ -184,9 +185,12 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "decoder.pkl", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "decoder.pkl",
+            "environment.json",
+        }
 
         # reload model
         model_rec = INFOVAE_MMD.load_from_folder(dir_path)
@@ -195,10 +199,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_full_custom_model_saving(
@@ -216,15 +218,13 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            [
-                "model_config.json",
-                "model.pt",
-                "encoder.pkl",
-                "decoder.pkl",
-                "environment.json",
-            ]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "encoder.pkl",
+            "decoder.pkl",
+            "environment.json",
+        }
 
         # reload model
         model_rec = INFOVAE_MMD.load_from_folder(dir_path)
@@ -233,10 +233,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_raises_missing_files(
@@ -282,10 +280,9 @@ class Test_Model_Saving:
 class Test_Model_forward:
     @pytest.fixture
     def demo_data(self):
-        data = torch.load(os.path.join(PATH, "data/mnist_clean_train_dataset_sample"))[
-            :
-        ]
-        return data  # This is an extract of 3 data from MNIST (unnormalized) used to test custom architecture
+        return torch.load(
+            os.path.join(PATH, "data/mnist_clean_train_dataset_sample")
+        )[:]
 
     @pytest.fixture
     def info_vae_mmd(self, model_configs, demo_data):
@@ -300,9 +297,14 @@ class Test_Model_forward:
 
         assert isinstance(out, ModelOutput)
 
-        assert set(
-            ["reconstruction_loss", "reg_loss", "loss", "mmd_loss", "recon_x", "z"]
-        ) == set(out.keys())
+        assert {
+            "reconstruction_loss",
+            "reg_loss",
+            "loss",
+            "mmd_loss",
+            "recon_x",
+            "z",
+        } == set(out.keys())
 
         assert out.z.shape[0] == demo_data["data"].shape[0]
         assert out.recon_x.shape == demo_data["data"].shape
@@ -373,10 +375,9 @@ class Test_Model_reconstruct:
 class Test_NLL_Compute:
     @pytest.fixture
     def demo_data(self):
-        data = torch.load(os.path.join(PATH, "data/mnist_clean_train_dataset_sample"))[
-            :
-        ]
-        return data  # This is an extract of 3 data from MNIST (unnormalized) used to test custom architecture
+        return torch.load(
+            os.path.join(PATH, "data/mnist_clean_train_dataset_sample")
+        )[:]
 
     @pytest.fixture
     def info_vae_mmd(self, model_configs, demo_data):
@@ -426,20 +427,18 @@ class Test_INFOVAE_MMD_Training:
         alpha = request.param
 
         if alpha < 0.25:
-            model = INFOVAE_MMD(model_configs)
+            return INFOVAE_MMD(model_configs)
 
         elif 0.25 <= alpha < 0.5:
-            model = INFOVAE_MMD(model_configs, encoder=custom_encoder)
+            return INFOVAE_MMD(model_configs, encoder=custom_encoder)
 
         elif 0.5 <= alpha < 0.75:
-            model = INFOVAE_MMD(model_configs, decoder=custom_decoder)
+            return INFOVAE_MMD(model_configs, decoder=custom_decoder)
 
         else:
-            model = INFOVAE_MMD(
+            return INFOVAE_MMD(
                 model_configs, encoder=custom_encoder, decoder=custom_decoder
             )
-
-        return model
 
     @pytest.fixture
     def trainer(self, info_vae_mmd, train_dataset, training_configs):
@@ -464,10 +463,8 @@ class Test_INFOVAE_MMD_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_info_vae_mmd_eval_step(self, trainer):
@@ -480,10 +477,8 @@ class Test_INFOVAE_MMD_Training:
 
         # check that weights were not updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_info_vae_mmd_predict_step(self, trainer, train_dataset):
@@ -496,10 +491,8 @@ class Test_INFOVAE_MMD_Training:
 
         # check that weights were not updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
         assert inputs.cpu() in train_dataset.data
@@ -516,10 +509,8 @@ class Test_INFOVAE_MMD_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_checkpoint_saving(self, info_vae_mmd, trainer, training_configs):
@@ -540,7 +531,7 @@ class Test_INFOVAE_MMD_Training:
 
         files_list = os.listdir(checkpoint_dir)
 
-        assert set(["model.pt", "optimizer.pt", "training_config.json"]).issubset(
+        assert {"model.pt", "optimizer.pt", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -549,38 +540,34 @@ class Test_INFOVAE_MMD_Training:
             assert "decoder.pkl" in files_list
 
         else:
-            assert not "decoder.pkl" in files_list
+            assert "decoder.pkl" not in files_list
 
         # check pickled custom encoder
         if not info_vae_mmd.model_config.uses_default_encoder:
             assert "encoder.pkl" in files_list
 
         else:
-            assert not "encoder.pkl" in files_list
+            assert "encoder.pkl" not in files_list
 
         model_rec_state_dict = torch.load(os.path.join(checkpoint_dir, "model.pt"))[
             "model_state_dict"
         ]
 
         assert all(
-            [
-                torch.equal(
-                    model_rec_state_dict[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec_state_dict[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         # check reload full model
         model_rec = info_vae_mmd.load_from_folder(os.path.join(checkpoint_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         assert type(model_rec.encoder.cpu()) == type(model.encoder.cpu())
@@ -589,22 +576,18 @@ class Test_INFOVAE_MMD_Training:
         optim_rec_state_dict = torch.load(os.path.join(checkpoint_dir, "optimizer.pt"))
 
         assert all(
-            [
-                dict_rec == dict_optimizer
-                for (dict_rec, dict_optimizer) in zip(
-                    optim_rec_state_dict["param_groups"],
-                    optimizer.state_dict()["param_groups"],
-                )
-            ]
+            dict_rec == dict_optimizer
+            for (dict_rec, dict_optimizer) in zip(
+                optim_rec_state_dict["param_groups"],
+                optimizer.state_dict()["param_groups"],
+            )
         )
 
         assert all(
-            [
-                dict_rec == dict_optimizer
-                for (dict_rec, dict_optimizer) in zip(
-                    optim_rec_state_dict["state"], optimizer.state_dict()["state"]
-                )
-            ]
+            dict_rec == dict_optimizer
+            for (dict_rec, dict_optimizer) in zip(
+                optim_rec_state_dict["state"], optimizer.state_dict()["state"]
+            )
         )
 
     def test_checkpoint_saving_during_training(
@@ -633,7 +616,7 @@ class Test_INFOVAE_MMD_Training:
         files_list = os.listdir(checkpoint_dir)
 
         # check files
-        assert set(["model.pt", "optimizer.pt", "training_config.json"]).issubset(
+        assert {"model.pt", "optimizer.pt", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -642,24 +625,22 @@ class Test_INFOVAE_MMD_Training:
             assert "decoder.pkl" in files_list
 
         else:
-            assert not "decoder.pkl" in files_list
+            assert "decoder.pkl" not in files_list
 
         # check pickled custom encoder
         if not info_vae_mmd.model_config.uses_default_encoder:
             assert "encoder.pkl" in files_list
 
         else:
-            assert not "encoder.pkl" in files_list
+            assert "encoder.pkl" not in files_list
 
         model_rec_state_dict = torch.load(os.path.join(checkpoint_dir, "model.pt"))[
             "model_state_dict"
         ]
 
         assert not all(
-            [
-                torch.equal(model_rec_state_dict[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec_state_dict[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_final_model_saving(self, info_vae_mmd, trainer, training_configs):
@@ -675,12 +656,12 @@ class Test_INFOVAE_MMD_Training:
         )
         assert os.path.isdir(training_dir)
 
-        final_dir = os.path.join(training_dir, f"final_model")
+        final_dir = os.path.join(training_dir, "final_model")
         assert os.path.isdir(final_dir)
 
         files_list = os.listdir(final_dir)
 
-        assert set(["model.pt", "model_config.json", "training_config.json"]).issubset(
+        assert {"model.pt", "model_config.json", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -689,25 +670,23 @@ class Test_INFOVAE_MMD_Training:
             assert "decoder.pkl" in files_list
 
         else:
-            assert not "decoder.pkl" in files_list
+            assert "decoder.pkl" not in files_list
 
         # check pickled custom encoder
         if not info_vae_mmd.model_config.uses_default_encoder:
             assert "encoder.pkl" in files_list
 
         else:
-            assert not "encoder.pkl" in files_list
+            assert "encoder.pkl" not in files_list
 
         # check reload full model
         model_rec = INFOVAE_MMD.load_from_folder(os.path.join(final_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         assert type(model_rec.encoder.cpu()) == type(model.encoder.cpu())
@@ -739,12 +718,12 @@ class Test_INFOVAE_MMD_Training:
         )
         assert os.path.isdir(training_dir)
 
-        final_dir = os.path.join(training_dir, f"final_model")
+        final_dir = os.path.join(training_dir, "final_model")
         assert os.path.isdir(final_dir)
 
         files_list = os.listdir(final_dir)
 
-        assert set(["model.pt", "model_config.json", "training_config.json"]).issubset(
+        assert {"model.pt", "model_config.json", "training_config.json"}.issubset(
             set(files_list)
         )
 
@@ -753,25 +732,23 @@ class Test_INFOVAE_MMD_Training:
             assert "decoder.pkl" in files_list
 
         else:
-            assert not "decoder.pkl" in files_list
+            assert "decoder.pkl" not in files_list
 
         # check pickled custom encoder
         if not info_vae_mmd.model_config.uses_default_encoder:
             assert "encoder.pkl" in files_list
 
         else:
-            assert not "encoder.pkl" in files_list
+            assert "encoder.pkl" not in files_list
 
         # check reload full model
         model_rec = INFOVAE_MMD.load_from_folder(os.path.join(final_dir))
 
         assert all(
-            [
-                torch.equal(
-                    model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
-                )
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(
+                model_rec.state_dict()[key].cpu(), model.state_dict()[key].cpu()
+            )
+            for key in model.state_dict().keys()
         )
 
         assert type(model_rec.encoder.cpu()) == type(model.encoder.cpu())

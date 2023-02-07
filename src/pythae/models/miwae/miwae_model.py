@@ -85,7 +85,7 @@ class MIWAE(VAE):
 
         loss, recon_loss, kld = self.loss_function(recon_x, x, mu, log_var, z)
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
@@ -96,8 +96,6 @@ class MIWAE(VAE):
                 :, 0, 0, :
             ].reshape(-1, self.latent_dim),
         )
-
-        return output
 
     def loss_function(self, recon_x, x, mu, log_var, z):
 

@@ -76,19 +76,17 @@ class IWAE(VAE):
 
         loss, recon_loss, kld = self.loss_function(recon_x, x, mu, log_var, z)
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
-            recon_x=recon_x.reshape(x.shape[0], self.n_samples, -1)[:, 0, :].reshape_as(
-                x
-            ),
+            recon_x=recon_x.reshape(x.shape[0], self.n_samples, -1)[
+                :, 0, :
+            ].reshape_as(x),
             z=z.reshape(x.shape[0], self.n_samples, -1)[:, 0, :].reshape(
                 -1, self.latent_dim
             ),
         )
-
-        return output
 
     def loss_function(self, recon_x, x, mu, log_var, z):
 

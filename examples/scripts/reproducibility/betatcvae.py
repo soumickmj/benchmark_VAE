@@ -65,9 +65,8 @@ class Encoder(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
                 output["log_covariance"] = self.log_var(out)
@@ -125,9 +124,8 @@ class Decoder(BaseDecoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["reconstruction"] = out.reshape((z.shape[0],) + self.input_dim)
 
@@ -138,7 +136,9 @@ def main():
 
     data = np.load(
         os.path.join(
-            PATH, f"data/dsprites", "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz"
+            PATH,
+            "data/dsprites",
+            "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz",
         ),
         encoding="latin1",
     )

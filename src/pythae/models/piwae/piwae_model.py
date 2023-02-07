@@ -89,7 +89,7 @@ class PIWAE(VAE):
 
         loss = miwae_loss + iwae_loss
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
@@ -104,8 +104,6 @@ class PIWAE(VAE):
                 :, 0, 0, :
             ].reshape(-1, self.latent_dim),
         )
-
-        return output
 
     def loss_function(self, recon_x, x, mu, log_var, z):
 

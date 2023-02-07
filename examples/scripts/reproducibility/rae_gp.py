@@ -88,9 +88,8 @@ class Encoder(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
 
@@ -170,9 +169,8 @@ class Decoder(BaseDecoder):
             if i == 0:
                 out = out.reshape(z.shape[0], 1024, 8, 8)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["reconstruction"] = out
@@ -183,10 +181,12 @@ class Decoder(BaseDecoder):
 def main():
 
     train_data = (
-        np.load(os.path.join(PATH, f"data/celeba", "train_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/celeba", "train_data.npz"))["data"]
+        / 255.0
     )
     eval_data = (
-        np.load(os.path.join(PATH, f"data/celeba", "eval_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/celeba", "eval_data.npz"))["data"]
+        / 255.0
     )
 
     data_input_dim = tuple(train_data.shape[1:])

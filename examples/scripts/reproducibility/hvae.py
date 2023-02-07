@@ -62,9 +62,8 @@ class Encoder(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
                 output["log_covariance"] = self.log_var(out)
@@ -119,9 +118,8 @@ class Decoder(BaseDecoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["reconstruction"] = out.reshape((z.shape[0],) + self.input_dim)
 
@@ -131,13 +129,13 @@ class Decoder(BaseDecoder):
 def main():
 
     train_data = np.loadtxt(
-        os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_train.amat")
+        os.path.join(PATH, "data/binary_mnist", "binarized_mnist_train.amat")
     ).reshape(-1, 1, 28, 28)
     eval_data = np.loadtxt(
-        os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_valid.amat")
+        os.path.join(PATH, "data/binary_mnist", "binarized_mnist_valid.amat")
     ).reshape(-1, 1, 28, 28)
     test_data = np.loadtxt(
-        os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_test.amat")
+        os.path.join(PATH, "data/binary_mnist", "binarized_mnist_test.amat")
     ).reshape(-1, 1, 28, 28)
 
     data_input_dim = tuple(train_data.shape[1:])

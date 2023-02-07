@@ -293,11 +293,9 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["encoder_optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.encoder_optimizer.defaults[key]
-                    == optimizer_config["encoder_optimizer_params"][key]
-                    for key in optimizer_config["encoder_optimizer_params"].keys()
-                ]
+                trainer.encoder_optimizer.defaults[key]
+                == optimizer_config["encoder_optimizer_params"][key]
+                for key in optimizer_config["encoder_optimizer_params"].keys()
             )
 
         assert issubclass(
@@ -310,11 +308,9 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["decoder_optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.decoder_optimizer.defaults[key]
-                    == optimizer_config["decoder_optimizer_params"][key]
-                    for key in optimizer_config["decoder_optimizer_params"].keys()
-                ]
+                trainer.decoder_optimizer.defaults[key]
+                == optimizer_config["decoder_optimizer_params"][key]
+                for key in optimizer_config["decoder_optimizer_params"].keys()
             )
 
         assert issubclass(
@@ -327,11 +323,11 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["discriminator_optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.discriminator_optimizer.defaults[key]
-                    == optimizer_config["discriminator_optimizer_params"][key]
-                    for key in optimizer_config["discriminator_optimizer_params"].keys()
-                ]
+                trainer.discriminator_optimizer.defaults[key]
+                == optimizer_config["discriminator_optimizer_params"][key]
+                for key in optimizer_config[
+                    "discriminator_optimizer_params"
+                ].keys()
             )
 
 
@@ -483,11 +479,9 @@ class Test_Build_Scheduler:
             )
             if scheduler_config["encoder_scheduler_params"] is not None:
                 assert all(
-                    [
-                        trainer.encoder_scheduler.state_dict()[key]
-                        == scheduler_config["encoder_scheduler_params"][key]
-                        for key in scheduler_config["encoder_scheduler_params"].keys()
-                    ]
+                    trainer.encoder_scheduler.state_dict()[key]
+                    == scheduler_config["encoder_scheduler_params"][key]
+                    for key in scheduler_config["encoder_scheduler_params"].keys()
                 )
 
         if scheduler_config["decoder_scheduler_cls"] is None:
@@ -501,11 +495,9 @@ class Test_Build_Scheduler:
             )
             if scheduler_config["decoder_scheduler_params"] is not None:
                 assert all(
-                    [
-                        trainer.decoder_scheduler.state_dict()[key]
-                        == scheduler_config["decoder_scheduler_params"][key]
-                        for key in scheduler_config["decoder_scheduler_params"].keys()
-                    ]
+                    trainer.decoder_scheduler.state_dict()[key]
+                    == scheduler_config["decoder_scheduler_params"][key]
+                    for key in scheduler_config["decoder_scheduler_params"].keys()
                 )
 
         if scheduler_config["discriminator_scheduler_cls"] is None:
@@ -521,13 +513,11 @@ class Test_Build_Scheduler:
             )
             if scheduler_config["discriminator_scheduler_params"] is not None:
                 assert all(
-                    [
-                        trainer.discriminator_scheduler.state_dict()[key]
-                        == scheduler_config["discriminator_scheduler_params"][key]
-                        for key in scheduler_config[
-                            "discriminator_scheduler_params"
-                        ].keys()
-                    ]
+                    trainer.discriminator_scheduler.state_dict()[key]
+                    == scheduler_config["discriminator_scheduler_params"][key]
+                    for key in scheduler_config[
+                        "discriminator_scheduler_params"
+                    ].keys()
                 )
 
 
@@ -575,18 +565,16 @@ class Test_Main_Training:
         alpha = request.param
 
         if alpha < 0.25:
-            model = VAEGAN(ae_config)
+            return VAEGAN(ae_config)
 
         elif 0.25 <= alpha < 0.5:
-            model = VAEGAN(ae_config, encoder=custom_encoder)
+            return VAEGAN(ae_config, encoder=custom_encoder)
 
         elif 0.5 <= alpha < 0.75:
-            model = VAEGAN(ae_config, decoder=custom_decoder)
+            return VAEGAN(ae_config, decoder=custom_decoder)
 
         else:
-            model = VAEGAN(ae_config, encoder=custom_encoder, decoder=custom_decoder)
-
-        return model
+            return VAEGAN(ae_config, encoder=custom_encoder, decoder=custom_decoder)
 
     @pytest.fixture(
         params=[
@@ -720,10 +708,8 @@ class Test_Main_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_train_2_steps_updates(self, ae, train_dataset, trainer, optimizer_updates):
@@ -742,10 +728,8 @@ class Test_Main_Training:
 
         # check that weights were updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
         model_output = ae({"data": train_dataset.data.to(device)})
@@ -854,10 +838,8 @@ class Test_Main_Training:
 
         # check that weights were updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_main_train_loop(self, trainer):
@@ -870,10 +852,8 @@ class Test_Main_Training:
 
         # check that weights were updated
         assert not all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
 

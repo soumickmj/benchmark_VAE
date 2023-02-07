@@ -89,17 +89,23 @@ def main():
 
     train_data = torch.tensor(
         np.loadtxt(
-            os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_train.amat")
+            os.path.join(
+                PATH, "data/binary_mnist", "binarized_mnist_train.amat"
+            )
         )
     ).type(torch.float)
     eval_data = torch.tensor(
         np.loadtxt(
-            os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_valid.amat")
+            os.path.join(
+                PATH, "data/binary_mnist", "binarized_mnist_valid.amat"
+            )
         )
     ).type(torch.float)
     test_data = torch.tensor(
         np.loadtxt(
-            os.path.join(PATH, f"data/binary_mnist", "binarized_mnist_test.amat")
+            os.path.join(
+                PATH, "data/binary_mnist", "binarized_mnist_test.amat"
+            )
         )
     ).type(torch.float)
 

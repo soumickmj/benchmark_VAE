@@ -137,7 +137,7 @@ class Adversarial_AE(VAE):
 
         loss = autoencoder_loss + discriminator_loss
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             recon_loss=recon_loss,
             autoencoder_loss=autoencoder_loss,
@@ -145,8 +145,6 @@ class Adversarial_AE(VAE):
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z, z_prior):
 
@@ -240,9 +238,8 @@ class Adversarial_AE(VAE):
                 " Cannot perform model building."
             )
 
-        else:
-            with open(os.path.join(dir_path, "discriminator.pkl"), "rb") as fp:
-                discriminator = CPU_Unpickler(fp).load()
+        with open(os.path.join(dir_path, "discriminator.pkl"), "rb") as fp:
+            discriminator = CPU_Unpickler(fp).load()
 
         return discriminator
 
@@ -268,24 +265,21 @@ class Adversarial_AE(VAE):
         model_config = cls._load_model_config_from_folder(dir_path)
         model_weights = cls._load_model_weights_from_folder(dir_path)
 
-        if not model_config.uses_default_encoder:
-            encoder = cls._load_custom_encoder_from_folder(dir_path)
-
-        else:
-            encoder = None
-
-        if not model_config.uses_default_decoder:
-            decoder = cls._load_custom_decoder_from_folder(dir_path)
-
-        else:
-            decoder = None
-
-        if not model_config.uses_default_discriminator:
-            discriminator = cls._load_custom_discriminator_from_folder(dir_path)
-
-        else:
-            discriminator = None
-
+        encoder = (
+            None
+            if model_config.uses_default_encoder
+            else cls._load_custom_encoder_from_folder(dir_path)
+        )
+        decoder = (
+            None
+            if model_config.uses_default_decoder
+            else cls._load_custom_decoder_from_folder(dir_path)
+        )
+        discriminator = (
+            None
+            if model_config.uses_default_discriminator
+            else cls._load_custom_discriminator_from_folder(dir_path)
+        )
         model = cls(
             model_config, encoder=encoder, decoder=decoder, discriminator=discriminator
         )
@@ -296,7 +290,7 @@ class Adversarial_AE(VAE):
     @classmethod
     def load_from_hf_hub(
         cls, hf_hub_path: str, allow_pickle: bool = False
-    ):  # pragma: no cover
+    ):    # pragma: no cover
         """Class method to be used to load a pretrained model from the Hugging Face hub
 
         Args:
@@ -335,8 +329,8 @@ class Adversarial_AE(VAE):
         model_config = cls._load_model_config_from_folder(dir_path)
 
         if (
-            cls.__name__ + "Config" != model_config.name
-            and cls.__name__ + "_Config" != model_config.name
+            f"{cls.__name__}Config" != model_config.name
+            and f"{cls.__name__}_Config" != model_config.name
         ):
             warnings.warn(
                 f"You are trying to load a "

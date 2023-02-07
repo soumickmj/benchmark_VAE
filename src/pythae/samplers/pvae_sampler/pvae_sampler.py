@@ -58,9 +58,7 @@ class PoincareDiskSampler(BaseSampler):
         Returns:
             ~torch.Tensor: The generated images
         """
-        full_batch_nbr = int(num_samples / batch_size)
-        last_batch_samples_nbr = num_samples % batch_size
-
+        full_batch_nbr, last_batch_samples_nbr = divmod(num_samples, batch_size)
         x_gen_list = []
 
         for i in range(full_batch_nbr):

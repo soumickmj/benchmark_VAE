@@ -49,9 +49,8 @@ class Encoder_AE_MLP(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
 
@@ -99,9 +98,8 @@ class Encoder_VAE_MLP(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
                 output["log_covariance"] = self.log_var(out)
@@ -150,9 +148,8 @@ class Encoder_SVAE_MLP(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
                 output["log_concentration"] = self.log_concentration(out)
@@ -203,9 +200,8 @@ class Decoder_AE_MLP(BaseDecoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["reconstruction"] = out.reshape((z.shape[0],) + self.input_dim)
 
@@ -248,9 +244,7 @@ class Metric_MLP(BaseMetric):
         # add diagonal coefficients
         L = L + torch.diag_embed(h21.exp())
 
-        output = ModelOutput(L=L)
-
-        return output
+        return ModelOutput(L=L)
 
 
 class Discriminator_MLP(BaseDiscriminator):
@@ -303,9 +297,8 @@ class Discriminator_MLP(BaseDiscriminator):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["embedding"] = out

@@ -74,10 +74,9 @@ class GeodesicLayer(RiemannianLayer):
         input = input.unsqueeze(-2).expand(
             *input.shape[: -(len(input.shape) - 2)], self.out_features, self.in_features
         )
-        res = self.manifold.normdist2plane(
+        return self.manifold.normdist2plane(
             input, self.bias, self.weight, signed=True, norm=self.weight_norm
         )
-        return res
 
 
 ### Define paper encoder network
@@ -94,7 +93,7 @@ class Encoder(BaseEncoder):
             nn.ReLU(),
         )
         self.fc21 = nn.Linear(600, model_config.latent_dim)
-        self.fc22 = nn.Linear(600, model_config.latent_dim if not prior_iso else 1)
+        self.fc22 = nn.Linear(600, 1 if prior_iso else model_config.latent_dim)
 
     def forward(self, x):
         e = self.enc(x.reshape(x.shape[0], -1))
@@ -137,16 +136,19 @@ def main():
 
     ### Load data
     train_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "train_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "train_data.npz"))["data"]
+        / 255.0
     ).clamp(1e-5, 1 - 1e-5)
     eval_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "eval_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "eval_data.npz"))["data"]
+        / 255.0
     ).clamp(1e-5, 1 - 1e-5)
 
     train_data = torch.cat((train_data, eval_data))
 
     test_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "test_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "test_data.npz"))["data"]
+        / 255.0
     ).clamp(1e-5, 1 - 1e-5)
 
     data_input_dim = tuple(train_data.shape[1:])

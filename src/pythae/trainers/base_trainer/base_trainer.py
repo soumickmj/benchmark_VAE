@@ -78,11 +78,7 @@ class BaseTrainer:
         self.rank = self.training_config.rank
         self.dist_backend = self.training_config.dist_backend
 
-        if self.world_size > 1:
-            self.distributed = True
-        else:
-            self.distributed = False
-
+        self.distributed = self.world_size > 1
         if self.distributed:
             device = self._setup_devices()
 
@@ -132,10 +128,7 @@ class BaseTrainer:
 
     @property
     def is_main_process(self):
-        if self.rank == 0 or self.rank == -1:
-            return True
-        else:
-            return False
+        return self.rank in [0, -1]
 
     def _setup_devices(self):
         """Sets up the devices to perform distributed training."""
@@ -237,7 +230,7 @@ class BaseTrainer:
             )
 
         self._training_signature = (
-            str(datetime.datetime.now())[0:19].replace(" ", "_").replace(":", "-")
+            str(datetime.datetime.now())[:19].replace(" ", "_").replace(":", "-")
         )
 
         training_dir = os.path.join(
@@ -331,7 +324,7 @@ class BaseTrainer:
         if self.device == "cuda":
             cuda_inputs = dict.fromkeys(inputs)
 
-            for key in inputs.keys():
+            for key in inputs:
                 if torch.is_tensor(inputs[key]):
                     cuda_inputs[key] = inputs[key].cuda()
 
@@ -428,11 +421,8 @@ class BaseTrainer:
                 eval_loader=self.eval_loader,
             )
 
-            metrics = {}
-
             epoch_train_loss = self.train_step(epoch)
-            metrics["train_epoch_loss"] = epoch_train_loss
-
+            metrics = {"train_epoch_loss": epoch_train_loss}
             if self.eval_dataset is not None:
                 epoch_eval_loss = self.eval_step(epoch)
                 metrics["eval_epoch_loss"] = epoch_eval_loss
@@ -479,15 +469,14 @@ class BaseTrainer:
             if (
                 self.training_config.steps_saving is not None
                 and epoch % self.training_config.steps_saving == 0
-            ):
-                if self.is_main_process:
-                    self.save_checkpoint(
-                        model=best_model, dir_path=self.training_dir, epoch=epoch
-                    )
-                    logger.info(f"Saved checkpoint at epoch {epoch}\n")
+            ) and self.is_main_process:
+                self.save_checkpoint(
+                    model=best_model, dir_path=self.training_dir, epoch=epoch
+                )
+                logger.info(f"Saved checkpoint at epoch {epoch}\n")
 
-                    if log_verbose:
-                        file_logger.info(f"Saved checkpoint at epoch {epoch}\n")
+                if log_verbose:
+                    file_logger.info(f"Saved checkpoint at epoch {epoch}\n")
 
             self.callback_handler.on_log(
                 self.training_config,

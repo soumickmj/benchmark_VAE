@@ -61,10 +61,12 @@ def main(args):
 
     ### Load data
     train_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "train_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "train_data.npz"))["data"]
+        / 255.0
     )
     eval_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "eval_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "eval_data.npz"))["data"]
+        / 255.0
     )
 
     train_dataset = MNIST(train_data)

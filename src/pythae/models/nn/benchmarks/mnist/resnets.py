@@ -144,9 +144,8 @@ class Encoder_ResNet_AE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
 
@@ -287,9 +286,8 @@ class Encoder_ResNet_VAE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
                 output["log_covariance"] = self.log_var(out.reshape(x.shape[0], -1))
@@ -430,9 +428,8 @@ class Encoder_ResNet_SVAE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
                 output["log_concentration"] = self.log_concentration(
@@ -573,9 +570,8 @@ class Encoder_ResNet_VQVAE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.pre_qantized(out)
 
@@ -730,9 +726,8 @@ class Decoder_ResNet_AE_MNIST(BaseDecoder):
             if i == 0:
                 out = out.reshape(z.shape[0], 128, 4, 4)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["reconstruction"] = out
@@ -882,9 +877,8 @@ class Decoder_ResNet_VQVAE_MNIST(BaseDecoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["reconstruction"] = out

@@ -253,11 +253,9 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["autoencoder_optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.autoencoder_optimizer.defaults[key]
-                    == optimizer_config["autoencoder_optimizer_params"][key]
-                    for key in optimizer_config["autoencoder_optimizer_params"].keys()
-                ]
+                trainer.autoencoder_optimizer.defaults[key]
+                == optimizer_config["autoencoder_optimizer_params"][key]
+                for key in optimizer_config["autoencoder_optimizer_params"].keys()
             )
 
         assert issubclass(
@@ -270,11 +268,11 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["discriminator_optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.discriminator_optimizer.defaults[key]
-                    == optimizer_config["discriminator_optimizer_params"][key]
-                    for key in optimizer_config["discriminator_optimizer_params"].keys()
-                ]
+                trainer.discriminator_optimizer.defaults[key]
+                == optimizer_config["discriminator_optimizer_params"][key]
+                for key in optimizer_config[
+                    "discriminator_optimizer_params"
+                ].keys()
             )
 
 
@@ -399,13 +397,11 @@ class Test_Build_Scheduler:
             )
             if scheduler_config["autoencoder_scheduler_params"] is not None:
                 assert all(
-                    [
-                        trainer.autoencoder_scheduler.state_dict()[key]
-                        == scheduler_config["autoencoder_scheduler_params"][key]
-                        for key in scheduler_config[
-                            "autoencoder_scheduler_params"
-                        ].keys()
-                    ]
+                    trainer.autoencoder_scheduler.state_dict()[key]
+                    == scheduler_config["autoencoder_scheduler_params"][key]
+                    for key in scheduler_config[
+                        "autoencoder_scheduler_params"
+                    ].keys()
                 )
 
         if scheduler_config["discriminator_scheduler_cls"] is None:
@@ -421,13 +417,11 @@ class Test_Build_Scheduler:
             )
             if scheduler_config["discriminator_scheduler_params"] is not None:
                 assert all(
-                    [
-                        trainer.discriminator_scheduler.state_dict()[key]
-                        == scheduler_config["discriminator_scheduler_params"][key]
-                        for key in scheduler_config[
-                            "discriminator_scheduler_params"
-                        ].keys()
-                    ]
+                    trainer.discriminator_scheduler.state_dict()[key]
+                    == scheduler_config["discriminator_scheduler_params"][key]
+                    for key in scheduler_config[
+                        "discriminator_scheduler_params"
+                    ].keys()
                 )
 
 
@@ -507,41 +501,43 @@ class Test_Main_Training:
         alpha = request.param
 
         if alpha < 0.125:
-            model = Adversarial_AE(ae_config)
+            return Adversarial_AE(ae_config)
 
         elif 0.125 <= alpha < 0.25:
-            model = Adversarial_AE(ae_config, encoder=custom_encoder)
+            return Adversarial_AE(ae_config, encoder=custom_encoder)
 
         elif 0.25 <= alpha < 0.375:
-            model = Adversarial_AE(ae_config, decoder=custom_decoder)
+            return Adversarial_AE(ae_config, decoder=custom_decoder)
 
         elif 0.375 <= alpha < 0.5:
-            model = Adversarial_AE(ae_config, discriminator=custom_discriminator)
+            return Adversarial_AE(ae_config, discriminator=custom_discriminator)
 
         elif 0.5 <= alpha < 0.625:
-            model = Adversarial_AE(
+            return Adversarial_AE(
                 ae_config, encoder=custom_encoder, decoder=custom_decoder
             )
 
         elif 0.625 <= alpha < 0:
-            model = Adversarial_AE(
-                ae_config, encoder=custom_encoder, discriminator=custom_discriminator
+            return Adversarial_AE(
+                ae_config,
+                encoder=custom_encoder,
+                discriminator=custom_discriminator,
             )
 
         elif 0.750 <= alpha < 0.875:
-            model = Adversarial_AE(
-                ae_config, decoder=custom_decoder, discriminator=custom_discriminator
+            return Adversarial_AE(
+                ae_config,
+                decoder=custom_decoder,
+                discriminator=custom_discriminator,
             )
 
         else:
-            model = Adversarial_AE(
+            return Adversarial_AE(
                 ae_config,
                 encoder=custom_encoder,
                 decoder=custom_decoder,
                 discriminator=custom_discriminator,
             )
-
-        return model
 
     @pytest.fixture(
         params=[
@@ -567,9 +563,7 @@ class Test_Main_Training:
     )
     def optimizer_config(self, request):
 
-        optimizer_config = request.param
-
-        return optimizer_config
+        return request.param
 
     @pytest.fixture(
         params=[
@@ -672,10 +666,8 @@ class Test_Main_Training:
 
         # check that weights not were updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_main_train_loop(self, trainer):

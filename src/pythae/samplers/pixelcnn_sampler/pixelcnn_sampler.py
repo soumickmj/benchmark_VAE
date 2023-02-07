@@ -43,10 +43,7 @@ class PixelCNNSampler(BaseSampler):
         quant_dumb = out_dumb.quantized_indices
         z_dumb = out_dumb.z
 
-        self.needs_reshape = False
-        if len(z_dumb.shape) == 2:
-            self.needs_reshape = True
-
+        self.needs_reshape = len(z_dumb.shape) == 2
         pixelcnn_config = PixelCNNConfig(
             input_dim=quant_dumb.shape[1:],
             n_embeddings=model.model_config.num_embeddings,
@@ -83,7 +80,7 @@ class PixelCNNSampler(BaseSampler):
         z = []
 
         with torch.no_grad():
-            for _, inputs in enumerate(train_loader):
+            for inputs in train_loader:
                 model_output = self.model(inputs)
                 mean_z = model_output.quantized_indices
                 z.append(
@@ -112,7 +109,7 @@ class PixelCNNSampler(BaseSampler):
             z = []
 
             with torch.no_grad():
-                for _, inputs in enumerate(eval_loader):
+                for inputs in eval_loader:
                     model_output = self.model(inputs)
                     mean_z = model_output.quantized_indices
                     z.append(
@@ -172,9 +169,7 @@ class PixelCNNSampler(BaseSampler):
                 "before sampling."
             )
 
-        full_batch_nbr = int(num_samples / batch_size)
-        last_batch_samples_nbr = num_samples % batch_size
-
+        full_batch_nbr, last_batch_samples_nbr = divmod(num_samples, batch_size)
         x_gen_list = []
 
         for i in range(full_batch_nbr):

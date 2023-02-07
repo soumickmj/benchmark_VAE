@@ -68,9 +68,8 @@ class Encoder(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out)
                 output["log_concentration"] = self.log_concentration(out)
@@ -129,9 +128,8 @@ class Decoder(BaseDecoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["reconstruction"] = out.reshape((z.shape[0],) + self.input_dim)
 
@@ -155,16 +153,19 @@ def main():
 
     ### Load data
     train_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "train_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "train_data.npz"))["data"]
+        / 255.0
     )
     eval_data = torch.tensor(
-        np.load(os.path.join(PATH, f"data/mnist", "eval_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "eval_data.npz"))["data"]
+        / 255.0
     )
 
     train_data = torch.cat((train_data, eval_data))
 
     test_data = (
-        np.load(os.path.join(PATH, f"data/mnist", "test_data.npz"))["data"] / 255.0
+        np.load(os.path.join(PATH, "data/mnist", "test_data.npz"))["data"]
+        / 255.0
     )
 
     data_input_dim = tuple(train_data.shape[1:])

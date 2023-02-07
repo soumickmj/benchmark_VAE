@@ -128,13 +128,10 @@ class GenerationPipeline(Pipeline):
             train_data=train_data, eval_data=eval_data, training_config=training_config
         )
 
-        # Generate data
-        generated_samples = self.sampler.sample(
+        return self.sampler.sample(
             num_samples=num_samples,
             batch_size=batch_size,
             output_dir=output_dir,
             return_gen=return_gen,
             save_sampler_config=save_sampler_config,
         )
-
-        return generated_samples

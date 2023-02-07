@@ -151,9 +151,8 @@ class Encoder_Conv_AE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
 
@@ -306,9 +305,8 @@ class Encoder_Conv_VAE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
@@ -463,9 +461,8 @@ class Encoder_Conv_SVAE_MNIST(BaseEncoder):
         for i in range(max_depth):
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["embedding"] = self.embedding(out.reshape(x.shape[0], -1))
@@ -607,9 +604,8 @@ class Decoder_Conv_AE_MNIST(BaseDecoder):
             if i == 0:
                 out = out.reshape(z.shape[0], 1024, 4, 4)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"reconstruction_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"reconstruction_layer_{i+1}"] = out
 
             if i + 1 == self.depth:
                 output["reconstruction"] = out
@@ -752,9 +748,8 @@ class Discriminator_Conv_MNIST(BaseDiscriminator):
 
             out = self.layers[i](out)
 
-            if output_layer_levels is not None:
-                if i + 1 in output_layer_levels:
-                    output[f"embedding_layer_{i+1}"] = out
+            if output_layer_levels is not None and i + 1 in output_layer_levels:
+                output[f"embedding_layer_{i+1}"] = out
             if i + 1 == self.depth:
                 output["embedding"] = out
 

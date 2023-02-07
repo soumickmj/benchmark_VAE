@@ -65,9 +65,11 @@ class Test_Model_Saving:
 
         model.save(dir_path=dir_path)
 
-        assert set(os.listdir(dir_path)) == set(
-            ["model_config.json", "model.pt", "environment.json"]
-        )
+        assert set(os.listdir(dir_path)) == {
+            "model_config.json",
+            "model.pt",
+            "environment.json",
+        }
 
         # reload model
         model_rec = AutoModel.load_from_folder(dir_path)
@@ -76,10 +78,8 @@ class Test_Model_Saving:
         assert model_rec.model_config.__dict__ == model.model_config.__dict__
 
         assert all(
-            [
-                torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
-                for key in model.state_dict().keys()
-            ]
+            torch.equal(model_rec.state_dict()[key], model.state_dict()[key])
+            for key in model.state_dict().keys()
         )
 
     def test_raises_missing_files(self, tmpdir, model_configs):
@@ -116,10 +116,9 @@ class Test_Model_Saving:
 class Test_Model_forward:
     @pytest.fixture
     def demo_data(self):
-        data = torch.load(os.path.join(PATH, "data/mnist_clean_train_dataset_sample"))[
-            :
-        ]
-        return data  # This is an extract of 3 data from MNIST (unnormalized) used to test custom architecture
+        return torch.load(
+            os.path.join(PATH, "data/mnist_clean_train_dataset_sample")
+        )[:]
 
     @pytest.fixture
     def made(self, model_configs, demo_data):
@@ -134,7 +133,7 @@ class Test_Model_forward:
 
         assert isinstance(out, ModelOutput)
 
-        assert set(["mu", "log_var"]) == set(out.keys())
+        assert {"mu", "log_var"} == set(out.keys())
 
         assert out.mu.shape[0] == demo_data["data"].shape[0]
         assert out.log_var.shape[0] == demo_data["data"].shape[0]

@@ -118,7 +118,7 @@ class FactorVAE(VAE):
 
         loss = autoencoder_loss + discriminator_loss
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             recon_loss=recon_loss,
             autoencoder_loss=autoencoder_loss,
@@ -127,8 +127,6 @@ class FactorVAE(VAE):
             z=z,
             z_bis_permuted=z_bis_permuted,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, mu, log_var, z, z_bis_permuted):
 
@@ -199,8 +197,7 @@ class FactorVAE(VAE):
 
         std = torch.exp(0.5 * log_var)
         z, _ = self._sample_gauss(mu, std)
-        recon_x = self.decoder(z)["reconstruction"]
-        return recon_x
+        return self.decoder(z)["reconstruction"]
 
     def interpolate(
         self,
@@ -246,15 +243,13 @@ class FactorVAE(VAE):
             + torch.kron(ending_z.reshape(ending_z.shape[0], -1), t.unsqueeze(-1))
         ).reshape((starting_z.shape[0] * t.shape[0],) + (starting_z.shape[1:]))
 
-        decoded_line = self.decoder(intep_line).reconstruction.reshape(
+        return self.decoder(intep_line).reconstruction.reshape(
             (
                 starting_inputs.shape[0],
                 t.shape[0],
             )
             + (starting_inputs.shape[1:])
         )
-
-        return decoded_line
 
     def _sample_gauss(self, mu, std):
         # Reparametrization trick

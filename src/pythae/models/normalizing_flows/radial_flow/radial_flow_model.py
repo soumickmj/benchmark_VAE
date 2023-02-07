@@ -49,6 +49,4 @@ class RadialFlow(BaseNF):
             1 + beta * h - beta * r / (alpha + r) ** 2
         )
 
-        output = ModelOutput(out=f, log_abs_det_jac=log_det.squeeze())
-
-        return output
+        return ModelOutput(out=f, log_abs_det_jac=log_det.squeeze())

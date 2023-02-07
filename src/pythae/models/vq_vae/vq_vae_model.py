@@ -110,7 +110,7 @@ class VQVAE(AE):
 
         loss, recon_loss, vq_loss = self.loss_function(recon_x, x, quantizer_output)
 
-        output = ModelOutput(
+        return ModelOutput(
             recon_loss=recon_loss,
             vq_loss=vq_loss,
             loss=loss,
@@ -118,8 +118,6 @@ class VQVAE(AE):
             z=quantized_embed,
             quantized_indices=quantized_indices,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, quantizer_output):
 

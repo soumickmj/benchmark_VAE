@@ -110,10 +110,7 @@ class Decoder_ResNet_VQVAE_FFHQ(BaseDecoder):
 class FFHQ(Dataset):
     def __init__(self, data_dir=None, is_train=True, transforms=None):
         self.imgs_path = [os.path.join(data_dir, n) for n in os.listdir(data_dir)]
-        if is_train:
-            self.imgs_path = self.imgs_path[:60000]
-        else:
-            self.imgs_path = self.imgs_path[60000:]
+        self.imgs_path = self.imgs_path[:60000] if is_train else self.imgs_path[60000:]
         self.transforms = transforms
 
     def __len__(self):

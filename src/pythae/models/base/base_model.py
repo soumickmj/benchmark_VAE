@@ -153,15 +153,13 @@ class BaseAE(nn.Module):
             + torch.kron(ending_z.reshape(ending_z.shape[0], -1), t.unsqueeze(-1))
         ).reshape((starting_z.shape[0] * t.shape[0],) + (starting_z.shape[1:]))
 
-        decoded_line = self.decoder(intep_line).reconstruction.reshape(
+        return self.decoder(intep_line).reconstruction.reshape(
             (
                 starting_inputs.shape[0],
                 t.shape[0],
             )
             + (starting_inputs.shape[1:])
         )
-
-        return decoded_line
 
     def update(self):
         """Method that allows model update during the training (at the end of a training epoch)
@@ -210,7 +208,7 @@ class BaseAE(nn.Module):
 
         torch.save(model_dict, os.path.join(dir_path, "model.pt"))
 
-    def push_to_hf_hub(self, hf_hub_path: str):  # pragma: no cover
+    def push_to_hf_hub(self, hf_hub_path: str):    # pragma: no cover
         """Method allowing to save your model directly on the huggung face hub.
         You will need to have the `huggingface_hub` package installed and a valid Hugging Face
         account. You can install the package using
@@ -249,16 +247,13 @@ class BaseAE(nn.Module):
         model_files = os.listdir(tempdir)
 
         api = HfApi()
-        hf_operations = []
-
-        for file in model_files:
-            hf_operations.append(
-                CommitOperationAdd(
-                    path_in_repo=file,
-                    path_or_fileobj=f"{str(os.path.join(tempdir, file))}",
-                )
+        hf_operations = [
+            CommitOperationAdd(
+                path_in_repo=file,
+                path_or_fileobj=f"{str(os.path.join(tempdir, file))}",
             )
-
+            for file in model_files
+        ]
         with open(os.path.join(tempdir, "model_card.md"), "w") as f:
             f.write(model_card_template)
 
@@ -308,9 +303,7 @@ class BaseAE(nn.Module):
             )
 
         path_to_model_config = os.path.join(dir_path, "model_config.json")
-        model_config = AutoConfig.from_json_file(path_to_model_config)
-
-        return model_config
+        return AutoConfig.from_json_file(path_to_model_config)
 
     @classmethod
     def _load_model_weights_from_folder(cls, dir_path):
@@ -355,9 +348,8 @@ class BaseAE(nn.Module):
                 " Cannot perform model building."
             )
 
-        else:
-            with open(os.path.join(dir_path, "encoder.pkl"), "rb") as fp:
-                encoder = CPU_Unpickler(fp).load()
+        with open(os.path.join(dir_path, "encoder.pkl"), "rb") as fp:
+            encoder = CPU_Unpickler(fp).load()
 
         return encoder
 
@@ -374,9 +366,8 @@ class BaseAE(nn.Module):
                 " Cannot perform model building."
             )
 
-        else:
-            with open(os.path.join(dir_path, "decoder.pkl"), "rb") as fp:
-                decoder = CPU_Unpickler(fp).load()
+        with open(os.path.join(dir_path, "decoder.pkl"), "rb") as fp:
+            decoder = CPU_Unpickler(fp).load()
 
         return decoder
 
@@ -401,25 +392,23 @@ class BaseAE(nn.Module):
         model_config = cls._load_model_config_from_folder(dir_path)
         model_weights = cls._load_model_weights_from_folder(dir_path)
 
-        if not model_config.uses_default_encoder:
-            encoder = cls._load_custom_encoder_from_folder(dir_path)
-
-        else:
-            encoder = None
-
-        if not model_config.uses_default_decoder:
-            decoder = cls._load_custom_decoder_from_folder(dir_path)
-
-        else:
-            decoder = None
-
+        encoder = (
+            None
+            if model_config.uses_default_encoder
+            else cls._load_custom_encoder_from_folder(dir_path)
+        )
+        decoder = (
+            None
+            if model_config.uses_default_decoder
+            else cls._load_custom_decoder_from_folder(dir_path)
+        )
         model = cls(model_config, encoder=encoder, decoder=decoder)
         model.load_state_dict(model_weights)
 
         return model
 
     @classmethod
-    def load_from_hf_hub(cls, hf_hub_path: str, allow_pickle=False):  # pragma: no cover
+    def load_from_hf_hub(cls, hf_hub_path: str, allow_pickle=False):    # pragma: no cover
         """Class method to be used to load a pretrained model from the Hugging Face hub
 
         Args:
@@ -458,8 +447,8 @@ class BaseAE(nn.Module):
         model_config = cls._load_model_config_from_folder(dir_path)
 
         if (
-            cls.__name__ + "Config" != model_config.name
-            and cls.__name__ + "_Config" != model_config.name
+            f"{cls.__name__}Config" != model_config.name
+            and f"{cls.__name__}_Config" != model_config.name
         ):
             warnings.warn(
                 f"You are trying to load a "

@@ -76,8 +76,7 @@ class Test_Pipeline_Standalone:
             input_dim=tuple(train_dataset.data[0].shape), latent_dim=2
         )
         vae = VAE(vae_config)
-        pipe = TrainingPipeline(model=vae)
-        return pipe
+        return TrainingPipeline(model=vae)
 
     def test_base_pipeline(self):
         with pytest.raises(NotImplementedError):

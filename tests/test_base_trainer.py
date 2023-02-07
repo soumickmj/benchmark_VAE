@@ -207,11 +207,9 @@ class Test_Build_Optimizer:
         )
         if optimizer_config["optimizer_params"] is not None:
             assert all(
-                [
-                    trainer.optimizer.defaults[key]
-                    == optimizer_config["optimizer_params"][key]
-                    for key in optimizer_config["optimizer_params"].keys()
-                ]
+                trainer.optimizer.defaults[key]
+                == optimizer_config["optimizer_params"][key]
+                for key in optimizer_config["optimizer_params"].keys()
             )
 
 
@@ -306,11 +304,9 @@ class Test_Build_Scheduler:
         )
         if scheduler_config["scheduler_params"] is not None:
             assert all(
-                [
-                    trainer.scheduler.state_dict()[key]
-                    == scheduler_config["scheduler_params"][key]
-                    for key in scheduler_config["scheduler_params"].keys()
-                ]
+                trainer.scheduler.state_dict()[key]
+                == scheduler_config["scheduler_params"][key]
+                for key in scheduler_config["scheduler_params"].keys()
             )
 
 
@@ -372,30 +368,28 @@ class Test_Device_Checks:
         alpha = request.param
 
         if alpha < 0.25:
-            model = AE(ae_config)
+            return AE(ae_config)
 
         elif 0.25 <= alpha < 0.5:
-            model = AE(ae_config, encoder=custom_encoder)
+            return AE(ae_config, encoder=custom_encoder)
 
         elif 0.5 <= alpha < 0.75:
-            model = AE(ae_config, decoder=custom_decoder)
+            return AE(ae_config, decoder=custom_decoder)
 
         else:
-            model = AE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
-
-        return model
+            return AE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
 
     def test_set_on_device(self, ae, train_dataset, training_config):
         trainer = BaseTrainer(
             model=ae, train_dataset=train_dataset, training_config=training_config
         )
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
         if training_config.no_cuda:
             assert next(trainer.model.parameters()).device == "cpu"
 
         else:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+
             next(trainer.model.parameters()).device == device
 
 
@@ -445,41 +439,39 @@ class Test_Sanity_Checks:
                 rhvae_config.input_dim[-1] - 1,
             )
             # create error on input dim
-            model = RHVAE(rhvae_config)
+            return RHVAE(rhvae_config)
 
         elif 0.125 <= alpha < 0.25:
-            model = RHVAE(rhvae_config, encoder=corrupted_encoder)
+            return RHVAE(rhvae_config, encoder=corrupted_encoder)
 
         elif 0.25 <= alpha < 0.375:
-            model = RHVAE(rhvae_config, decoder=corrupted_decoder)
+            return RHVAE(rhvae_config, decoder=corrupted_decoder)
 
         elif 0.375 <= alpha < 0.5:
-            model = RHVAE(rhvae_config, metric=corrupted_metric)
+            return RHVAE(rhvae_config, metric=corrupted_metric)
 
         elif 0.5 <= alpha < 0.625:
-            model = RHVAE(
+            return RHVAE(
                 rhvae_config, encoder=corrupted_encoder, decoder=corrupted_decoder
             )
 
         elif 0.625 <= alpha < 0:
-            model = RHVAE(
+            return RHVAE(
                 rhvae_config, encoder=corrupted_encoder, metric=corrupted_metric
             )
 
         elif 0.750 <= alpha < 0.875:
-            model = RHVAE(
+            return RHVAE(
                 rhvae_config, decoder=corrupted_decoder, metric=corrupted_metric
             )
 
         else:
-            model = RHVAE(
+            return RHVAE(
                 rhvae_config,
                 encoder=corrupted_encoder,
                 decoder=corrupted_decoder,
                 metric=corrupted_metric,
             )
-
-        return model
 
     def test_raises_sanity_check_error(self, rhvae, train_dataset, training_config):
         with pytest.raises(ModelError):
@@ -539,30 +531,23 @@ class Test_Main_Training:
         alpha = request.param
 
         if alpha < 0.25:
-            if isinstance(ae_config, VAEConfig):
-                model = VAE(ae_config)
-            else:
-                model = AE(ae_config)
-
+            return VAE(ae_config) if isinstance(ae_config, VAEConfig) else AE(ae_config)
         elif 0.25 <= alpha < 0.5:
-            if isinstance(ae_config, VAEConfig):
-                model = VAE(ae_config, encoder=custom_encoder)
-            else:
-                model = AE(ae_config, encoder=custom_encoder)
-
+            return (
+                VAE(ae_config, encoder=custom_encoder)
+                if isinstance(ae_config, VAEConfig)
+                else AE(ae_config, encoder=custom_encoder)
+            )
         elif 0.5 <= alpha < 0.75:
-            if isinstance(ae_config, VAEConfig):
-                model = VAE(ae_config, decoder=custom_decoder)
-            else:
-                model = AE(ae_config, decoder=custom_decoder)
-
+            return (
+                VAE(ae_config, decoder=custom_decoder)
+                if isinstance(ae_config, VAEConfig)
+                else AE(ae_config, decoder=custom_decoder)
+            )
+        elif isinstance(ae_config, VAEConfig):
+            return VAE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
         else:
-            if isinstance(ae_config, VAEConfig):
-                model = VAE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
-            else:
-                model = AE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
-
-        return model
+            return AE(ae_config, encoder=custom_encoder, decoder=custom_decoder)
 
     @pytest.fixture(
         params=[
@@ -635,10 +620,8 @@ class Test_Main_Training:
 
         # check that weights were not updated
         assert all(
-            [
-                torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
-                for key in start_model_state_dict.keys()
-            ]
+            torch.equal(start_model_state_dict[key], step_1_model_state_dict[key])
+            for key in start_model_state_dict.keys()
         )
 
     def test_predict_step(self, trainer):

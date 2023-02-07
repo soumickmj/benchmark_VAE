@@ -66,8 +66,7 @@ def _mobius_add(x, y, c, dim=-1):  ## OK
 def _mobius_scalar_mul(r, x, c, dim: int = -1):  ## OK
     x_norm = x.norm(dim=dim, keepdim=True, p=2).clamp_min(MIN_NORM)
     sqrt_c = c ** 0.5
-    res_c = tanh(r * artanh(sqrt_c * x_norm)) * x / (x_norm * sqrt_c)
-    return res_c
+    return tanh(r * artanh(sqrt_c * x_norm)) * x / (x_norm * sqrt_c)
 
 
 def _project(x, c, dim: int = -1, eps: float = None):  ## OK
@@ -131,10 +130,7 @@ class PoincareBall:
         self, x: torch.Tensor, y: torch.Tensor, *, dim=-1, project=True
     ) -> torch.Tensor:  ## OK
         res = _mobius_add(x, y, c=self.c, dim=dim)
-        if project:
-            return _project(res, c=self.c, dim=dim)
-        else:
-            return res
+        return _project(res, c=self.c, dim=dim) if project else res
 
     def logmap0(self, x: torch.Tensor, y: torch.Tensor, *, dim=-1) -> torch.Tensor:
         sqrt_c = self.c ** 0.5
@@ -177,8 +173,7 @@ class PoincareBall:
     def expmap0(self, u, dim: int = -1):
         sqrt_c = self.c ** 0.5
         u_norm = u.norm(dim=dim, p=2, keepdim=True).clamp_min(MIN_NORM)
-        gamma_1 = tanh(sqrt_c * u_norm) * u / (sqrt_c * u_norm)
-        return gamma_1
+        return tanh(sqrt_c * u_norm) * u / (sqrt_c * u_norm)
 
     def expmap(self, x, u, dim: int = -1):
         sqrt_c = self.c ** 0.5
@@ -188,8 +183,7 @@ class PoincareBall:
             * u
             / (sqrt_c * u_norm)
         )
-        gamma_1 = _mobius_add(x, second_term, self.c, dim=dim)
-        return gamma_1
+        return _mobius_add(x, second_term, self.c, dim=dim)
 
     def expmap_polar(self, x, u, r, dim: int = -1):  ## OK
         sqrt_c = self.c ** 0.5
@@ -197,14 +191,12 @@ class PoincareBall:
         second_term = (
             tanh(torch.tensor([sqrt_c]).to(x.device) / 2 * r) * u / (sqrt_c * u_norm)
         )
-        gamma_1 = self.mobius_add(x, second_term, dim=dim)
-        return gamma_1
+        return self.mobius_add(x, second_term, dim=dim)
 
     def geodesic(self, t, x, y, dim: int = -1):  ## OK
         v = _mobius_add(-x, y, self.c, dim=dim)
         tv = _mobius_scalar_mul(t, v, self.c, dim=dim)
-        gamma_t = _mobius_add(x, tv, self.c, dim=dim)
-        return gamma_t
+        return _mobius_add(x, tv, self.c, dim=dim)
 
     def normdist2plane(
         self,
@@ -234,10 +226,11 @@ class PoincareBall:
     def _check_point_on_manifold(self, x, *, atol=1e-5, rtol=1e-5):
         px = _project(x, c=self.c)
         ok = torch.allclose(x, px, atol=atol, rtol=rtol)
-        if not ok:
-            reason = "'x' norm lies out of the bounds [-1/sqrt(c)+eps, 1/sqrt(c)-eps]"
-        else:
-            reason = None
+        reason = (
+            None
+            if ok
+            else "'x' norm lies out of the bounds [-1/sqrt(c)+eps, 1/sqrt(c)-eps]"
+        )
         return ok, reason
 
     def _check_vector_on_tangent(
@@ -292,8 +285,7 @@ class WrappedNormal(dist.Distribution):  ## OK
         u = self.manifold.transp(
             torch.zeros(1, self.manifold.dim).to(v.device), self.loc, v
         )
-        z = self.manifold.expmap(self.loc, u)
-        return z
+        return self.manifold.expmap(self.loc, u)
 
     def log_prob(self, x):  ## OK
         shape = x.shape
@@ -313,8 +305,7 @@ class WrappedNormal(dist.Distribution):  ## OK
             .sum(-1, keepdim=True)
         )
         logdetexp = self.manifold.logdetexp(loc, x, keepdim=True)
-        result = norm_pdf - logdetexp
-        return result
+        return norm_pdf - logdetexp
 
 
 infty = torch.tensor(float("Inf"))
@@ -494,53 +485,52 @@ def cdf_r(value, scale, c, dim):
                 )
             )
         )
-    else:
-        device = value.device
+    device = value.device
 
-        k_float = rexpand(torch.arange(dim), *value.size()).double().to(device)
-        dim = torch.tensor(dim).to(device).double()
+    k_float = rexpand(torch.arange(dim), *value.size()).double().to(device)
+    dim = torch.tensor(dim).to(device).double()
 
-        s1 = (
-            torch.lgamma(dim)
-            - torch.lgamma(k_float + 1)
-            - torch.lgamma(dim - k_float)
-            + (dim - 1 - 2 * k_float).pow(2) * c * scale.pow(2) / 2
-            + torch.log(
-                torch.erf(
-                    (value - (dim - 1 - 2 * k_float) * math.sqrt(c) * scale.pow(2))
-                    / scale
-                    / math.sqrt(2)
-                )
-                + torch.erf(
-                    (dim - 1 - 2 * k_float) * math.sqrt(c) * scale / math.sqrt(2)
-                )
+    s1 = (
+        torch.lgamma(dim)
+        - torch.lgamma(k_float + 1)
+        - torch.lgamma(dim - k_float)
+        + (dim - 1 - 2 * k_float).pow(2) * c * scale.pow(2) / 2
+        + torch.log(
+            torch.erf(
+                (value - (dim - 1 - 2 * k_float) * math.sqrt(c) * scale.pow(2))
+                / scale
+                / math.sqrt(2)
+            )
+            + torch.erf(
+                (dim - 1 - 2 * k_float) * math.sqrt(c) * scale / math.sqrt(2)
             )
         )
-        s2 = (
-            torch.lgamma(dim)
-            - torch.lgamma(k_float + 1)
-            - torch.lgamma(dim - k_float)
-            + (dim - 1 - 2 * k_float).pow(2) * c * scale.pow(2) / 2
-            + torch.log1p(
-                torch.erf((dim - 1 - 2 * k_float) * math.sqrt(c) * scale / math.sqrt(2))
-            )
+    )
+    s2 = (
+        torch.lgamma(dim)
+        - torch.lgamma(k_float + 1)
+        - torch.lgamma(dim - k_float)
+        + (dim - 1 - 2 * k_float).pow(2) * c * scale.pow(2) / 2
+        + torch.log1p(
+            torch.erf((dim - 1 - 2 * k_float) * math.sqrt(c) * scale / math.sqrt(2))
         )
+    )
 
-        signs = (
-            torch.tensor([1.0, -1.0])
-            .double()
-            .to(device)
-            .repeat(((int(dim) + 1) // 2) * 2)[: int(dim)]
-        )
-        signs = rexpand(signs, *value.size())
+    signs = (
+        torch.tensor([1.0, -1.0])
+        .double()
+        .to(device)
+        .repeat(((int(dim) + 1) // 2) * 2)[: int(dim)]
+    )
+    signs = rexpand(signs, *value.size())
 
-        S1 = log_sum_exp_signs(s1, signs, dim=0)
-        S2 = log_sum_exp_signs(s2, signs, dim=0)
+    S1 = log_sum_exp_signs(s1, signs, dim=0)
+    S2 = log_sum_exp_signs(s2, signs, dim=0)
 
-        output = torch.exp(S1 - S2)
-        zero_value_idx = value == 0.0
-        output[zero_value_idx] = 0.0
-        return output.float()
+    output = torch.exp(S1 - S2)
+    zero_value_idx = value == 0.0
+    output[zero_value_idx] = 0.0
+    return output.float()
 
 
 def grad_cdf_value_scale(value, scale, c, dim):
@@ -763,10 +753,7 @@ class HyperbolicRadius(dist.Distribution):
         self.scale = scale
         self.device = scale.device
         self.ars = ars
-        if isinstance(scale, Number):
-            batch_shape = torch.Size()
-        else:
-            batch_shape = self.scale.size()
+        batch_shape = torch.Size() if isinstance(scale, Number) else self.scale.size()
         self.log_normalizer = self._log_normalizer()
         if (
             torch.isnan(self.log_normalizer).any()
@@ -816,12 +803,11 @@ class HyperbolicRadius(dist.Distribution):
         return res
 
     def grad_log_prob(self, value):
-        res = -value / self.scale.pow(2) + (self.dim - 1) * math.sqrt(
+        return -value / self.scale.pow(2) + (self.dim - 1) * math.sqrt(
             self.c
         ) * torch.cosh(math.sqrt(self.c) * value) / torch.sinh(
             math.sqrt(self.c) * value
         )
-        return res
 
     def cdf(self, value):
         return cdf_r(value, self.scale, self.c, self.dim)
@@ -1012,17 +998,13 @@ class RiemannianNormal(dist.Distribution):  ## OK
         shape = self._extended_shape(sample_shape)
         alpha = self.direction.sample(torch.Size([*shape[:-1]]))
         radius = self.radius.rsample(sample_shape)
-        # u = radius * alpha / self.manifold.lambda_x(self.loc, keepdim=True)
-        # res = self.manifold.expmap(self.loc, u)
-        res = self.manifold.expmap_polar(self.loc, alpha, radius)
-        return res
+        return self.manifold.expmap_polar(self.loc, alpha, radius)
 
     def log_prob(self, value):  ## OK
         loc = self.loc.expand(value.shape)
         radius_sq = self.manifold.dist(loc, value, keepdim=True).pow(2)
-        res = (
+        return (
             -radius_sq / 2 / self.scale.pow(2)
             - self.direction._log_normalizer()
             - self.radius.log_normalizer
         )
-        return res

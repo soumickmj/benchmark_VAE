@@ -39,9 +39,7 @@ class BaseConfig:
         try:
             with open(json_path) as f:
                 try:
-                    config_dict = json.load(f)
-                    return config_dict
-
+                    return json.load(f)
                 except (TypeError, json.JSONDecodeError) as e:
                     raise TypeError(
                         f"File {json_path} not loadable. Maybe not json ? \n"

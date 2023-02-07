@@ -87,15 +87,13 @@ class SVAE(VAE):
 
         loss, recon_loss, kld = self.loss_function(recon_x, x, loc, concentration, z)
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, loc, concentration, z):
 
@@ -229,8 +227,7 @@ class SVAE(VAE):
 
             log_p_x = []
 
-            for j in range(n_full_batch):
-
+            for _ in range(n_full_batch):
                 x_rep = torch.cat(batch_size * [x])
 
                 encoder_output = self.encoder(x_rep)

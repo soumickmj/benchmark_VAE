@@ -69,13 +69,11 @@ class Quantizer(nn.Module):
         )
         quantized = quantized.permute(0, 3, 1, 2)
 
-        output = ModelOutput(
+        return ModelOutput(
             quantized_vector=quantized,
             quantized_indices=quantized_indices.unsqueeze(1),
             loss=loss,
         )
-
-        return output
 
 
 class QuantizerEMA(nn.Module):
@@ -160,10 +158,8 @@ class QuantizerEMA(nn.Module):
         loss = commitment_loss * self.commitment_loss_factor
         quantized = quantized.permute(0, 3, 1, 2)
 
-        output = ModelOutput(
+        return ModelOutput(
             quantized_vector=quantized,
             quantized_indices=quantized_indices.unsqueeze(1),
             loss=loss,
         )
-
-        return output

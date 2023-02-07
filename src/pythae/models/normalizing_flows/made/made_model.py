@@ -82,10 +82,10 @@ class MADE(BaseNF):
                     self.m[-1].min(), self.input_dim - 1, (self.hidden_sizes[i],)
                 )
 
-        masks = []
-        for i in range(len(self.hidden_sizes)):
-            masks += [(self.m[i].unsqueeze(-1) >= self.m[i - 1].unsqueeze(0)).float()]
-
+        masks = [
+            (self.m[i].unsqueeze(-1) >= self.m[i - 1].unsqueeze(0)).float()
+            for i in range(len(self.hidden_sizes))
+        ]
         masks.append(
             (
                 self.m[len(self.hidden_sizes) - 1].unsqueeze(0)

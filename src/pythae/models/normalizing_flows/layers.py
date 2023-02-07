@@ -64,11 +64,9 @@ class BatchNorm(nn.Module):
 
         log_abs_det_jac = self.log_gamma - 0.5 * (var + self.eps).log()
 
-        output = ModelOutput(
+        return ModelOutput(
             out=y, log_abs_det_jac=log_abs_det_jac.expand_as(x).sum(dim=-1)
         )
-
-        return output
 
     def inverse(self, y):
         if self.training:
@@ -89,8 +87,6 @@ class BatchNorm(nn.Module):
 
         log_abs_det_jac = -self.log_gamma + 0.5 * (var + self.eps).log()
 
-        output = ModelOutput(
+        return ModelOutput(
             out=x, log_abs_det_jac=log_abs_det_jac.expand_as(x).sum(dim=-1)
         )
-
-        return output

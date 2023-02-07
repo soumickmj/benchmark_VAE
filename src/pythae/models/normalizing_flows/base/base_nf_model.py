@@ -107,9 +107,7 @@ class BaseNF(nn.Module):
             )
 
         path_to_model_config = os.path.join(dir_path, "model_config.json")
-        model_config = AutoConfig.from_json_file(path_to_model_config)
-
-        return model_config
+        return AutoConfig.from_json_file(path_to_model_config)
 
     @classmethod
     def _load_model_weights_from_folder(cls, dir_path):
@@ -190,9 +188,7 @@ class NFModel(nn.Module):
 
         log_prob_prior = self.prior.log_prob(y).reshape(y.shape[0])
 
-        output = ModelOutput(loss=-(log_prob_prior + log_abs_det_jac).sum())
-
-        return output
+        return ModelOutput(loss=-(log_prob_prior + log_abs_det_jac).sum())
 
     def update(self):
         self.flow.update()

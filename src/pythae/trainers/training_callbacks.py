@@ -207,7 +207,7 @@ class MetricConsolePrinterCallback(TrainingCallback):
         logger = kwargs.pop("logger", self.logger)
         rank = kwargs.pop("rank", -1)
 
-        if logger is not None and (rank == -1 or rank == 0):
+        if logger is not None and rank in [-1, 0]:
             epoch_train_loss = logs.get("train_epoch_loss", None)
             epoch_eval_loss = logs.get("eval_epoch_loss", None)
 
@@ -236,25 +236,23 @@ class ProgressBarCallback(TrainingCallback):
         epoch = kwargs.pop("epoch", None)
         train_loader = kwargs.pop("train_loader", None)
         rank = kwargs.pop("rank", -1)
-        if train_loader is not None:
-            if rank == 0 or rank == -1:
-                self.train_progress_bar = tqdm(
-                    total=len(train_loader),
-                    unit="batch",
-                    desc=f"Training of epoch {epoch}/{training_config.num_epochs}",
-                )
+        if train_loader is not None and rank in [0, -1]:
+            self.train_progress_bar = tqdm(
+                total=len(train_loader),
+                unit="batch",
+                desc=f"Training of epoch {epoch}/{training_config.num_epochs}",
+            )
 
     def on_eval_step_begin(self, training_config: BaseTrainerConfig, **kwargs):
         epoch = kwargs.pop("epoch", None)
         eval_loader = kwargs.pop("eval_loader", None)
         rank = kwargs.pop("rank", -1)
-        if eval_loader is not None:
-            if rank == 0 or rank == -1:
-                self.eval_progress_bar = tqdm(
-                    total=len(eval_loader),
-                    unit="batch",
-                    desc=f"Eval of epoch {epoch}/{training_config.num_epochs}",
-                )
+        if eval_loader is not None and rank in [0, -1]:
+            self.eval_progress_bar = tqdm(
+                total=len(eval_loader),
+                unit="batch",
+                desc=f"Eval of epoch {epoch}/{training_config.num_epochs}",
+            )
 
     def on_train_step_end(self, training_config: BaseTrainerConfig, **kwargs):
         if self.train_progress_bar is not None:
@@ -300,10 +298,9 @@ class WandbCallback(TrainingCallback):  # pragma: no cover
                 "`wandb` package must be installed. Run `pip install wandb`"
             )
 
-        else:
-            import wandb
+        import wandb
 
-            self._wandb = wandb
+        self._wandb = wandb
 
     def setup(
         self,
@@ -362,47 +359,43 @@ class WandbCallback(TrainingCallback):  # pragma: no cover
     def on_prediction_step(self, training_config: BaseTrainerConfig, **kwargs):
         kwargs.pop("global_step", None)
 
-        column_names = ["images_id", "truth", "reconstruction", "normal_generation"]
-
         true_data = kwargs.pop("true_data", None)
         reconstructions = kwargs.pop("reconstructions", None)
         generations = kwargs.pop("generations", None)
-
-        data_to_log = []
 
         if (
             true_data is not None
             and reconstructions is not None
             and generations is not None
         ):
-            for i in range(len(true_data)):
-
-                data_to_log.append(
-                    [
-                        f"img_{i}",
-                        self._wandb.Image(
-                            np.moveaxis(true_data[i].cpu().detach().numpy(), 0, -1)
-                        ),
-                        self._wandb.Image(
-                            np.clip(
-                                np.moveaxis(
-                                    reconstructions[i].cpu().detach().numpy(), 0, -1
-                                ),
-                                0,
-                                255.0,
-                            )
-                        ),
-                        self._wandb.Image(
-                            np.clip(
-                                np.moveaxis(
-                                    generations[i].cpu().detach().numpy(), 0, -1
-                                ),
-                                0,
-                                255.0,
-                            )
-                        ),
-                    ]
-                )
+            data_to_log = [
+                [
+                    f"img_{i}",
+                    self._wandb.Image(
+                        np.moveaxis(true_data[i].cpu().detach().numpy(), 0, -1)
+                    ),
+                    self._wandb.Image(
+                        np.clip(
+                            np.moveaxis(
+                                reconstructions[i].cpu().detach().numpy(), 0, -1
+                            ),
+                            0,
+                            255.0,
+                        )
+                    ),
+                    self._wandb.Image(
+                        np.clip(
+                            np.moveaxis(
+                                generations[i].cpu().detach().numpy(), 0, -1
+                            ),
+                            0,
+                            255.0,
+                        )
+                    ),
+                ]
+                for i in range(len(true_data))
+            ]
+            column_names = ["images_id", "truth", "reconstruction", "normal_generation"]
 
             val_table = self._wandb.Table(data=data_to_log, columns=column_names)
 
@@ -433,10 +426,9 @@ class MLFlowCallback(TrainingCallback):  # pragma: no cover
                 "`mlflow` package must be installed. Run `pip install mlflow`"
             )
 
-        else:
-            import mlflow
+        import mlflow
 
-            self._mlflow = mlflow
+        self._mlflow = mlflow
 
     def setup(
         self,
@@ -486,11 +478,7 @@ class MLFlowCallback(TrainingCallback):  # pragma: no cover
         global_step = kwargs.pop("global_step", None)
 
         logs = rename_logs(logs)
-        metrics = {}
-        for k, v in logs.items():
-            if isinstance(v, (int, float)):
-                metrics[k] = v
-
+        metrics = {k: v for k, v in logs.items() if isinstance(v, (int, float))}
         self._mlflow.log_metrics(metrics=metrics, step=global_step)
 
     def on_train_end(self, training_config: BaseTrainerConfig, **kwargs):
@@ -528,10 +516,9 @@ class CometCallback(TrainingCallback):  # pragma: no cover
                 "`comet_ml` package must be installed. Run `pip install comet_ml`"
             )
 
-        else:
-            import comet_ml
+        import comet_ml
 
-            self._comet_ml = comet_ml
+        self._comet_ml = comet_ml
 
     def setup(
         self,
@@ -569,20 +556,19 @@ class CometCallback(TrainingCallback):  # pragma: no cover
 
         training_config_dict = training_config.to_dict()
 
-        if not offline_run:
-            experiment = self._comet_ml.Experiment(
-                api_key=api_key, project_name=project_name, workspace=workspace
-            )
-            experiment.log_other("Created from", "pythae")
-        else:
-            experiment = self._comet_ml.OfflineExperiment(
+        experiment = (
+            self._comet_ml.OfflineExperiment(
                 api_key=api_key,
                 project_name=project_name,
                 workspace=workspace,
                 offline_directory=offline_directory,
             )
-            experiment.log_other("Created from", "pythae")
-
+            if offline_run
+            else self._comet_ml.Experiment(
+                api_key=api_key, project_name=project_name, workspace=workspace
+            )
+        )
+        experiment.log_other("Created from", "pythae")
         experiment.log_parameters(training_config, prefix="training_config/")
         experiment.log_parameters(model_config, prefix="model_config/")
 

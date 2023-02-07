@@ -68,11 +68,13 @@ class WAE_MMD(AE):
 
         loss, recon_loss, mmd_loss = self.loss_function(recon_x, x, z, z_prior)
 
-        output = ModelOutput(
-            loss=loss, recon_loss=recon_loss, mmd_loss=mmd_loss, recon_x=recon_x, z=z
+        return ModelOutput(
+            loss=loss,
+            recon_loss=recon_loss,
+            mmd_loss=mmd_loss,
+            recon_x=recon_x,
+            z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z, z_prior):
 
@@ -124,6 +126,6 @@ class WAE_MMD(AE):
 
         C = 2.0 * self.model_config.latent_dim * self.model_config.kernel_bandwidth ** 2
 
-        k = torch.exp(-torch.norm(z1.unsqueeze(1) - z2.unsqueeze(0), dim=-1) ** 2 / C)
-
-        return k
+        return torch.exp(
+            -torch.norm(z1.unsqueeze(1) - z2.unsqueeze(0), dim=-1) ** 2 / C
+        )

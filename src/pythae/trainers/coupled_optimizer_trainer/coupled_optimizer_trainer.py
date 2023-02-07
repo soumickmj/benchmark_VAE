@@ -70,29 +70,29 @@ class CoupledOptimizerTrainer(BaseTrainer):
         )
 
         if self.training_config.encoder_optimizer_params is not None:
-            if self.distributed:
-                encoder_optimizer = encoder_optimizer_cls(
+            encoder_optimizer = (
+                encoder_optimizer_cls(
                     self.model.module.encoder.parameters(),
                     lr=self.training_config.encoder_learning_rate,
                     **self.training_config.encoder_optimizer_params,
                 )
-            else:
-                encoder_optimizer = encoder_optimizer_cls(
+                if self.distributed
+                else encoder_optimizer_cls(
                     self.model.encoder.parameters(),
                     lr=self.training_config.encoder_learning_rate,
                     **self.training_config.encoder_optimizer_params,
                 )
+            )
+        elif self.distributed:
+            encoder_optimizer = encoder_optimizer_cls(
+                self.model.module.encoder.parameters(),
+                lr=self.training_config.encoder_learning_rate,
+            )
         else:
-            if self.distributed:
-                encoder_optimizer = encoder_optimizer_cls(
-                    self.model.module.encoder.parameters(),
-                    lr=self.training_config.encoder_learning_rate,
-                )
-            else:
-                encoder_optimizer = encoder_optimizer_cls(
-                    self.model.encoder.parameters(),
-                    lr=self.training_config.encoder_learning_rate,
-                )
+            encoder_optimizer = encoder_optimizer_cls(
+                self.model.encoder.parameters(),
+                lr=self.training_config.encoder_learning_rate,
+            )
 
         self.encoder_optimizer = encoder_optimizer
 
@@ -119,30 +119,29 @@ class CoupledOptimizerTrainer(BaseTrainer):
         decoder_cls = getattr(optim, self.training_config.decoder_optimizer_cls)
 
         if self.training_config.decoder_optimizer_params is not None:
-            if self.distributed:
-                decoder_optimizer = decoder_cls(
+            decoder_optimizer = (
+                decoder_cls(
                     self.model.module.decoder.parameters(),
                     lr=self.training_config.decoder_learning_rate,
                     **self.training_config.decoder_optimizer_params,
                 )
-            else:
-                decoder_optimizer = decoder_cls(
+                if self.distributed
+                else decoder_cls(
                     self.model.decoder.parameters(),
                     lr=self.training_config.decoder_learning_rate,
                     **self.training_config.decoder_optimizer_params,
                 )
-
+            )
+        elif self.distributed:
+            decoder_optimizer = decoder_cls(
+                self.model.module.decoder.parameters(),
+                lr=self.training_config.decoder_learning_rate,
+            )
         else:
-            if self.distributed:
-                decoder_optimizer = decoder_cls(
-                    self.model.module.decoder.parameters(),
-                    lr=self.training_config.decoder_learning_rate,
-                )
-            else:
-                decoder_optimizer = decoder_cls(
-                    self.model.decoder.parameters(),
-                    lr=self.training_config.decoder_learning_rate,
-                )
+            decoder_optimizer = decoder_cls(
+                self.model.decoder.parameters(),
+                lr=self.training_config.decoder_learning_rate,
+            )
 
         self.decoder_optimizer = decoder_optimizer
 
@@ -167,12 +166,12 @@ class CoupledOptimizerTrainer(BaseTrainer):
 
     def _optimizers_step(self, model_output):
 
-        encoder_loss = model_output.encoder_loss
         decoder_loss = model_output.decoder_loss
 
         # Reset optimizers
         if model_output.update_encoder:
             self.encoder_optimizer.zero_grad()
+            encoder_loss = model_output.encoder_loss
             encoder_loss.backward(retain_graph=True)
 
         if model_output.update_decoder:
@@ -279,8 +278,6 @@ class CoupledOptimizerTrainer(BaseTrainer):
                 eval_loader=self.eval_loader,
             )
 
-            metrics = {}
-
             train_losses = self.train_step(epoch)
 
             [
@@ -288,10 +285,11 @@ class CoupledOptimizerTrainer(BaseTrainer):
                 epoch_train_encoder_loss,
                 epoch_train_decoder_loss,
             ] = train_losses
-            metrics["train_epoch_loss"] = epoch_train_loss
-            metrics["train_encoder_loss"] = epoch_train_encoder_loss
-            metrics["train_decoder_loss"] = epoch_train_decoder_loss
-
+            metrics = {
+                "train_epoch_loss": epoch_train_loss,
+                "train_encoder_loss": epoch_train_encoder_loss,
+                "train_decoder_loss": epoch_train_decoder_loss,
+            }
             if self.eval_dataset is not None:
                 eval_losses = self.eval_step(epoch)
 
@@ -354,15 +352,14 @@ class CoupledOptimizerTrainer(BaseTrainer):
             if (
                 self.training_config.steps_saving is not None
                 and epoch % self.training_config.steps_saving == 0
-            ):
-                if self.is_main_process:
-                    self.save_checkpoint(
-                        model=best_model, dir_path=self.training_dir, epoch=epoch
-                    )
-                    logger.info(f"Saved checkpoint at epoch {epoch}\n")
+            ) and self.is_main_process:
+                self.save_checkpoint(
+                    model=best_model, dir_path=self.training_dir, epoch=epoch
+                )
+                logger.info(f"Saved checkpoint at epoch {epoch}\n")
 
-                    if log_verbose:
-                        file_logger.info(f"Saved checkpoint at epoch {epoch}\n")
+                if log_verbose:
+                    file_logger.info(f"Saved checkpoint at epoch {epoch}\n")
 
             self.callback_handler.on_log(
                 self.training_config,

@@ -247,7 +247,7 @@ class RHVAE(VAE):
             recon_x, x, z0, z, rho, eps0, gamma, mu, log_var, G_inv, G_log_det
         )
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             recon_x=recon_x,
             z=z,
@@ -260,8 +260,6 @@ class RHVAE(VAE):
             G_inv=G_inv,
             G_log_det=G_log_det,
         )
-
-        return output
 
     def _leap_step_1(self, recon_x, x, z, rho, G_inv, G_log_det, steps=3):
         """
@@ -475,8 +473,7 @@ class RHVAE(VAE):
 
             log_p_x = []
 
-            for j in range(n_full_batch):
-
+            for _ in range(n_full_batch):
                 x_rep = torch.cat(batch_size * [x])
 
                 encoder_output = self.encoder(x_rep)
@@ -625,9 +622,8 @@ class RHVAE(VAE):
                 " Cannot perform model building."
             )
 
-        else:
-            with open(os.path.join(dir_path, "metric.pkl"), "rb") as fp:
-                metric = CPU_Unpickler(fp).load()
+        with open(os.path.join(dir_path, "metric.pkl"), "rb") as fp:
+            metric = CPU_Unpickler(fp).load()
 
         return metric
 
@@ -681,24 +677,21 @@ class RHVAE(VAE):
         model_config = cls._load_model_config_from_folder(dir_path)
         model_weights = cls._load_model_weights_from_folder(dir_path)
 
-        if not model_config.uses_default_encoder:
-            encoder = cls._load_custom_encoder_from_folder(dir_path)
-
-        else:
-            encoder = None
-
-        if not model_config.uses_default_decoder:
-            decoder = cls._load_custom_decoder_from_folder(dir_path)
-
-        else:
-            decoder = None
-
-        if not model_config.uses_default_metric:
-            metric = cls._load_custom_metric_from_folder(dir_path)
-
-        else:
-            metric = None
-
+        encoder = (
+            None
+            if model_config.uses_default_encoder
+            else cls._load_custom_encoder_from_folder(dir_path)
+        )
+        decoder = (
+            None
+            if model_config.uses_default_decoder
+            else cls._load_custom_decoder_from_folder(dir_path)
+        )
+        metric = (
+            None
+            if model_config.uses_default_metric
+            else cls._load_custom_metric_from_folder(dir_path)
+        )
         model = cls(model_config, encoder=encoder, decoder=decoder, metric=metric)
 
         metric_M, metric_centroids = cls._load_metric_matrices_and_centroids(dir_path)
@@ -716,7 +709,7 @@ class RHVAE(VAE):
     @classmethod
     def load_from_hf_hub(
         cls, hf_hub_path: str, allow_pickle: bool = False
-    ):  # pragma: no cover
+    ):    # pragma: no cover
         """Class method to be used to load a pretrained model from the Hugging Face hub
 
         Args:
@@ -755,8 +748,8 @@ class RHVAE(VAE):
         model_config = cls._load_model_config_from_folder(dir_path)
 
         if (
-            cls.__name__ + "Config" != model_config.name
-            and cls.__name__ + "_Config" != model_config.name
+            f"{cls.__name__}Config" != model_config.name
+            and f"{cls.__name__}_Config" != model_config.name
         ):
             warnings.warn(
                 f"You are trying to load a "

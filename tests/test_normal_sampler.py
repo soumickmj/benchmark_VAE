@@ -151,12 +151,10 @@ class Test_NormalSampler_Sampling:
 
         pipe = GenerationPipeline(model=model, sampler_config=sampler_config)
 
-        if sampler_config is None:
-            assert isinstance(pipe.sampler, NormalSampler)
-
-        else:
-            assert isinstance(pipe.sampler, NormalSampler)
+        if sampler_config is not None:
             assert pipe.sampler.sampler_config == sampler_config
+
+        assert isinstance(pipe.sampler, NormalSampler)
 
         gen_data = pipe(
             num_samples=num_samples,

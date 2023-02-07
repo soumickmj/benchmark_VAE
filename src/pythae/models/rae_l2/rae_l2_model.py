@@ -61,7 +61,7 @@ class RAE_L2(AE):
 
         loss, recon_loss, embedding_loss = self.loss_function(recon_x, x, z)
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             encoder_loss=loss,
             decoder_loss=loss,
@@ -72,8 +72,6 @@ class RAE_L2(AE):
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z):
 

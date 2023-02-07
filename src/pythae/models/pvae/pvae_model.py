@@ -114,15 +114,13 @@ class PoincareVAE(VAE):
 
         loss, recon_loss, kld = self.loss_function(recon_x, x, z, qz_x)
 
-        output = ModelOutput(
+        return ModelOutput(
             reconstruction_loss=recon_loss,
             reg_loss=kld,
             loss=loss,
             recon_x=recon_x,
             z=z.squeeze(0),
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z, qz_x):
 
@@ -188,7 +186,7 @@ class PoincareVAE(VAE):
             z_i = self.latent_manifold.geodesic(t_i, starting_z, ending_z)
             inter_geo[:, i, :] = z_i
 
-        decoded_geo = self.decoder(
+        return self.decoder(
             inter_geo.reshape(
                 (starting_z.shape[0] * t.shape[0],) + (starting_z.shape[1:])
             )
@@ -199,7 +197,6 @@ class PoincareVAE(VAE):
             )
             + (starting_inputs.shape[1:])
         )
-        return decoded_geo
 
     def get_nll(self, data, n_samples=1, batch_size=100):
         """
@@ -226,22 +223,16 @@ class PoincareVAE(VAE):
 
             log_p_x = []
 
-            for j in range(n_full_batch):
-
+            for _ in range(n_full_batch):
                 x_rep = torch.cat(batch_size * [x])
 
                 encoder_output = self.encoder(x_rep)
-                if self.model_config.posterior_distribution == "riemannian_normal":
-                    mu, log_var = (
-                        encoder_output.embedding,
-                        encoder_output.log_concentration,
-                    )
-                else:
-                    mu, log_var = (
-                        encoder_output.embedding,
-                        encoder_output.log_covariance,
-                    )
-
+                mu, log_var = (
+                    (encoder_output.embedding, encoder_output.log_concentration)
+                    if self.model_config.posterior_distribution
+                    == "riemannian_normal"
+                    else (encoder_output.embedding, encoder_output.log_covariance)
+                )
                 std = torch.exp(0.5 * log_var)
 
                 qz_x = self.posterior(loc=mu, scale=std, manifold=self.latent_manifold)

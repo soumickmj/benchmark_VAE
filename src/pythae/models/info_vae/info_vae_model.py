@@ -75,7 +75,7 @@ class INFOVAE_MMD(VAE):
             recon_x, x, z, z_prior, mu, log_var
         )
 
-        output = ModelOutput(
+        return ModelOutput(
             loss=loss,
             reconstruction_loss=recon_loss,
             reg_loss=kld_loss,
@@ -83,8 +83,6 @@ class INFOVAE_MMD(VAE):
             recon_x=recon_x,
             z=z,
         )
-
-        return output
 
     def loss_function(self, recon_x, x, z, z_prior, mu, log_var):
 
@@ -161,6 +159,6 @@ class INFOVAE_MMD(VAE):
 
         C = 2.0 * self.model_config.latent_dim * self.model_config.kernel_bandwidth ** 2
 
-        k = torch.exp(-torch.norm(z1.unsqueeze(1) - z2.unsqueeze(0), dim=-1) ** 2 / C)
-
-        return k
+        return torch.exp(
+            -torch.norm(z1.unsqueeze(1) - z2.unsqueeze(0), dim=-1) ** 2 / C
+        )

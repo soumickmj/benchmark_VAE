@@ -54,9 +54,7 @@ class TrainingPipeline(Pipeline):
                     decoder_optim_decay=model.model_config.reg_weight,
                 )
 
-            elif (
-                model.model_name == "Adversarial_AE" or model.model_name == "FactorVAE"
-            ):
+            elif model.model_name in ["Adversarial_AE", "FactorVAE"]:
                 training_config = AdversarialTrainerConfig()
 
             elif model.model_name == "VAEGAN":
@@ -65,7 +63,7 @@ class TrainingPipeline(Pipeline):
             else:
                 training_config = BaseTrainerConfig()
 
-        elif model.model_name == "RAE_L2" or model.model_name == "PIWAE":
+        elif model.model_name in ["RAE_L2", "PIWAE"]:
             if not isinstance(training_config, CoupledOptimizerTrainerConfig):
 
                 raise AssertionError(
@@ -82,7 +80,7 @@ class TrainingPipeline(Pipeline):
                         "weight_decay"
                     ] = model.model_config.reg_weight
 
-        elif model.model_name == "Adversarial_AE" or model.model_name == "FactorVAE":
+        elif model.model_name in ["Adversarial_AE", "FactorVAE"]:
             if not isinstance(training_config, AdversarialTrainerConfig):
 
                 raise AssertionError(
@@ -168,7 +166,7 @@ class TrainingPipeline(Pipeline):
                 A list of callbacks to use during training.
         """
 
-        if isinstance(train_data, np.ndarray) or isinstance(train_data, torch.Tensor):
+        if isinstance(train_data, (np.ndarray, torch.Tensor)):
 
             logger.info("Preprocessing train data...")
             train_data = self.data_processor.process_data(train_data)
@@ -181,7 +179,7 @@ class TrainingPipeline(Pipeline):
         self._check_dataset(train_dataset)
 
         if eval_data is not None:
-            if isinstance(eval_data, np.ndarray) or isinstance(eval_data, torch.Tensor):
+            if isinstance(eval_data, (np.ndarray, torch.Tensor)):
                 logger.info("Preprocessing eval data...\n")
                 eval_data = self.data_processor.process_data(eval_data)
                 eval_dataset = self.data_processor.to_dataset(eval_data)

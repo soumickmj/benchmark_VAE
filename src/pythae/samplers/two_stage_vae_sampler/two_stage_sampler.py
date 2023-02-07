@@ -19,25 +19,23 @@ class SecondEncoder(BaseEncoder):
 
         BaseEncoder.__init__(self)
 
-        layers = []
-
-        layers.append(
+        layers = [
             nn.Sequential(
-                nn.Linear(model.latent_dim, sampler_config.second_layers_dim), nn.ReLU()
+                nn.Linear(model.latent_dim, sampler_config.second_layers_dim),
+                nn.ReLU(),
             )
+        ]
+
+        layers.extend(
+            nn.Sequential(
+                nn.Linear(
+                    sampler_config.second_layers_dim,
+                    sampler_config.second_layers_dim,
+                ),
+                nn.ReLU(),
+            )
+            for _ in range(sampler_config.second_stage_depth - 1)
         )
-
-        for i in range(sampler_config.second_stage_depth - 1):
-            layers.append(
-                nn.Sequential(
-                    nn.Linear(
-                        sampler_config.second_layers_dim,
-                        sampler_config.second_layers_dim,
-                    ),
-                    nn.ReLU(),
-                )
-            )
-
         self.layers = nn.Sequential(*layers)
         self.mu = nn.Linear(sampler_config.second_layers_dim, model.latent_dim)
         self.std = nn.Linear(sampler_config.second_layers_dim, model.latent_dim)
@@ -45,9 +43,7 @@ class SecondEncoder(BaseEncoder):
     def forward(self, z: torch.Tensor):
         out = self.layers(z)
 
-        output = ModelOutput(embedding=self.mu(out), log_covariance=self.std(out))
-
-        return output
+        return ModelOutput(embedding=self.mu(out), log_covariance=self.std(out))
 
 
 class SecondDecoder(BaseDecoder):
@@ -57,25 +53,23 @@ class SecondDecoder(BaseDecoder):
 
         self.gamma_z = nn.Parameter(torch.ones(1, 1), requires_grad=True)
 
-        layers = []
-
-        layers.append(
+        layers = [
             nn.Sequential(
-                nn.Linear(model.latent_dim, sampler_config.second_layers_dim), nn.ReLU()
+                nn.Linear(model.latent_dim, sampler_config.second_layers_dim),
+                nn.ReLU(),
             )
+        ]
+
+        layers.extend(
+            nn.Sequential(
+                nn.Linear(
+                    sampler_config.second_layers_dim,
+                    sampler_config.second_layers_dim,
+                ),
+                nn.ReLU(),
+            )
+            for _ in range(sampler_config.second_stage_depth - 1)
         )
-
-        for i in range(sampler_config.second_stage_depth - 1):
-            layers.append(
-                nn.Sequential(
-                    nn.Linear(
-                        sampler_config.second_layers_dim,
-                        sampler_config.second_layers_dim,
-                    ),
-                    nn.ReLU(),
-                )
-            )
-
         self.layers = nn.Sequential(*layers)
         self.reconstruction = nn.Linear(
             sampler_config.second_layers_dim, model.latent_dim
@@ -86,9 +80,7 @@ class SecondDecoder(BaseDecoder):
 
         z = self.reconstruction(out)
 
-        output = ModelOutput(reconstruction=z + self.gamma_z * torch.randn_like(z))
-
-        return output
+        return ModelOutput(reconstruction=z + self.gamma_z * torch.randn_like(z))
 
 
 class TwoStageVAESampler(BaseSampler):
@@ -163,13 +155,13 @@ class TwoStageVAESampler(BaseSampler):
 
         try:
             with torch.no_grad():
-                for _, inputs in enumerate(train_loader):
+                for inputs in train_loader:
                     encoder_output = self.model(inputs)
                     z_ = encoder_output.z
                     z.append(z_)
 
         except RuntimeError:
-            for _, inputs in enumerate(train_loader):
+            for inputs in train_loader:
                 encoder_output = self.model(inputs)
                 z_ = encoder_output.z.detach()
                 z.append(z_)
@@ -195,13 +187,13 @@ class TwoStageVAESampler(BaseSampler):
 
             try:
                 with torch.no_grad():
-                    for _, inputs in enumerate(eval_loader):
+                    for inputs in eval_loader:
                         encoder_output = self.model(inputs)
                         z_ = encoder_output.z
                         z.append(z_)
 
             except RuntimeError:
-                for _, inputs in enumerate(eval_loader):
+                for inputs in eval_loader:
                     encoder_output = self.model(inputs)
                     z_ = encoder_output.z.detach()
                     z.append(z_)
@@ -256,9 +248,7 @@ class TwoStageVAESampler(BaseSampler):
                 "before sampling."
             )
 
-        full_batch_nbr = int(num_samples / batch_size)
-        last_batch_samples_nbr = num_samples % batch_size
-
+        full_batch_nbr, last_batch_samples_nbr = divmod(num_samples, batch_size)
         x_gen_list = []
 
         for i in range(full_batch_nbr):
